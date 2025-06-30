@@ -1,0 +1,50 @@
+{
+  "type": "record",
+  "name": "DoorSensor",
+  "namespace": "com.iot.devices",
+  "fields": [
+    {
+      "name": "deviceId",
+      "type": "string"
+    },
+    {
+      "name": "doorState",
+      "type": {
+        "type": "enum",
+        "name": "DoorState",
+        "symbols": [
+          "UNKNOWN",
+          "OPEN",
+          "CLOSED"
+        ]
+      },
+      "default": "UNKNOWN"
+    },
+    {
+      "name": "batteryLevel",
+      "type": "int"
+    },
+    {
+      "name": "tamperAlert",
+      "type": "boolean"
+    },
+    {
+      "name": "isOnline",
+      "type": "boolean"
+    },
+    {
+      "name": "lastOpened",
+      "type": [
+        "null",
+        "long"
+      ],
+      "logicalType": "timestamp-millis",
+      "default": null
+    },
+    {
+      "name": "lastUpdated",
+      "type": "long",
+      "logicalType": "timestamp-millis"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "type": "record",
+  "name": "SoilMoistureSensor",
+  "namespace": "com.iot.devices",
+  "fields": [
+    {
+      "name": "deviceId",
+      "type": "string"
+    },
+    {
+      "name": "moisturePercentage",
+      "type": "float"
+    },
+    {
+      "name": "soilTemperature",
+      "type": "float"
+    },
+    {
+      "name": "batteryLevel",
+      "type": "int"
+    },
+    {
+      "name": "status",
+      "type": {
+        "type": "enum",
+        "name": "SoilSensorStatus",
+        "symbols": [
+          "UNKNOWN",
+          "OK",
+          "LOW_BATTERY",
+          "ERROR"
+        ]
+      },
+      "default": "UNKNOWN"
+    },
+    {
+      "name": "isOnline",
+      "type": "boolean"
+    },
+    {
+      "name": "lastUpdated",
+      "type": "long",
+      "logicalType": "timestamp-millis"
+    }
+  ]
+}

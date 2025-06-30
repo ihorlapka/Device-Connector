@@ -1,0 +1,40 @@
+{
+  "type": "record",
+  "name": "SmartPlug",
+  "namespace": "com.iot.devices",
+  "fields": [
+    {
+      "name": "deviceId",
+      "type": "string"
+    },
+    {
+      "name": "isOn",
+      "type": "boolean"
+    },
+    {
+      "name": "voltage",
+      "type": "float"
+    },
+    {
+      "name": "current",
+      "type": "float"
+    },
+    {
+      "name": "powerUsage",
+      "type": "float"
+    },
+    {
+      "name": "isOverloaded",
+      "type": "boolean"
+    },
+    {
+      "name": "isOnline",
+      "type": "boolean"
+    },
+    {
+      "name": "lastUpdated",
+      "type": "long",
+      "logicalType": "timestamp-millis"
+    }
+  ]
+}

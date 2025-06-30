@@ -1,0 +1,50 @@
+{
+  "type": "record",
+  "name": "TemperatureSensor",
+  "namespace": "com.iot.devices",
+  "fields": [
+    {
+      "name": "deviceId",
+      "type": "string"
+    },
+    {
+      "name": "temperature",
+      "type": "float"
+    },
+    {
+      "name": "humidity",
+      "type": "float"
+    },
+    {
+      "name": "pressure",
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
+    },
+    {
+      "name": "unit",
+      "type": {
+        "type": "enum",
+        "name": "TempUnit",
+        "symbols": [
+          "UNKNOWN",
+          "C",
+          "F",
+          "K"
+        ]
+      },
+      "default": "UNKNOWN"
+    },
+    {
+      "name": "isOnline",
+      "type": "boolean"
+    },
+    {
+      "name": "lastUpdated",
+      "type": "long",
+      "logicalType": "timestamp-millis"
+    }
+  ]
+}

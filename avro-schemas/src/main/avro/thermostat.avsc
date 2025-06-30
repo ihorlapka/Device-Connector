@@ -1,0 +1,51 @@
+{
+  "type": "record",
+  "name": "Thermostat",
+  "namespace": "com.iot.devices",
+  "fields": [
+    {
+      "name": "deviceId",
+      "type": "string"
+    },
+    {
+      "name": "currentTemperature",
+      "type": "float"
+    },
+    {
+      "name": "targetTemperature",
+      "type": "float"
+    },
+    {
+      "name": "humidity",
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
+    },
+    {
+      "name": "mode",
+      "type": {
+        "type": "enum",
+        "name": "ThermostatMode",
+        "symbols": [
+          "UNKNOWN",
+          "HEAT",
+          "COOL",
+          "AUTO",
+          "OFF"
+        ]
+      },
+      "default": "UNKNOWN"
+    },
+    {
+      "name": "isOnline",
+      "type": "boolean"
+    },
+    {
+      "name": "lastUpdated",
+      "type": "long",
+      "logicalType": "timestamp-millis"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "type": "record",
+  "name": "EnergyMeter",
+  "namespace": "com.iot.devices",
+  "fields": [
+    {
+      "name": "deviceId",
+      "type": "string"
+    },
+    {
+      "name": "voltage",
+      "type": "float"
+    },
+    {
+      "name": "current",
+      "type": "float"
+    },
+    {
+      "name": "power",
+      "type": "float"
+    },
+    {
+      "name": "energyConsumed",
+      "type": "float"
+    },
+    {
+      "name": "meterStatus",
+      "type": {
+        "type": "enum",
+        "name": "MeterStatus",
+        "symbols": [
+          "UNKNOWN",
+          "ACTIVE",
+          "INACTIVE",
+          "FAULT"
+        ]
+      },
+      "default": "UNKNOWN"
+    },
+    {
+      "name": "isOnline",
+      "type": "boolean"
+    },
+    {
+      "name": "lastUpdated",
+      "type": "long",
+      "logicalType": "timestamp-millis"
+    }
+  ]
+}
