@@ -9,15 +9,27 @@
     },
     {
       "name": "isOn",
-      "type": "boolean"
+      "type": [
+        "null",
+        "boolean"
+      ],
+      "default": null
     },
     {
       "name": "brightness",
-      "type": "int"
+      "type": [
+        "null",
+        "int"
+      ],
+      "default": null
     },
     {
       "name": "color",
-      "type": "string"
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
     },
     {
       "name": "mode",
@@ -45,11 +57,24 @@
     },
     {
       "name": "powerConsumption",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
-      "name": "isOnline",
-      "type": "boolean"
+      "name": "status",
+      "type": {
+        "type": "enum",
+        "name": "DeviceStatus",
+        "symbols": [
+          "UNKNOWN",
+          "OFFLINE",
+          "MAINTENANCE",
+          "ERROR"
+        ]
+      }
     },
     {
       "name": "lastUpdated",

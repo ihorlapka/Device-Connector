@@ -22,23 +22,42 @@
     },
     {
       "name": "batteryLevel",
-      "type": "int"
+      "type": [
+        "null",
+        "int"
+      ],
+      "default": null
     },
     {
       "name": "tamperAlert",
-      "type": "boolean"
+      "type": [
+        "null",
+        "boolean"
+      ],
+      "default": null
     },
     {
-      "name": "isOnline",
-      "type": "boolean"
+      "name": "status",
+      "type": {
+        "type": "enum",
+        "name": "DeviceStatus",
+        "symbols": [
+          "UNKNOWN",
+          "OFFLINE",
+          "MAINTENANCE",
+          "ERROR"
+        ]
+      }
     },
     {
       "name": "lastOpened",
       "type": [
         "null",
-        "long"
+        {
+          "type": "long",
+          "logicalType": "timestamp-millis"
+        }
       ],
-      "logicalType": "timestamp-millis",
       "default": null
     },
     {

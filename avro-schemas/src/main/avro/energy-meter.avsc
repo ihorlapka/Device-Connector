@@ -9,37 +9,48 @@
     },
     {
       "name": "voltage",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
       "name": "current",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
       "name": "power",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
       "name": "energyConsumed",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
-      "name": "meterStatus",
+      "name": "status",
       "type": {
         "type": "enum",
-        "name": "MeterStatus",
+        "name": "DeviceStatus",
         "symbols": [
           "UNKNOWN",
-          "ACTIVE",
-          "INACTIVE",
-          "FAULT"
+          "OFFLINE",
+          "MAINTENANCE",
+          "ERROR"
         ]
-      },
-      "default": "UNKNOWN"
-    },
-    {
-      "name": "isOnline",
-      "type": "boolean"
+      }
     },
     {
       "name": "lastUpdated",

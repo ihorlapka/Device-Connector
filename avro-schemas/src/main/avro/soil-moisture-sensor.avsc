@@ -9,33 +9,40 @@
     },
     {
       "name": "moisturePercentage",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
       "name": "soilTemperature",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
       "name": "batteryLevel",
-      "type": "int"
+      "type": [
+        "null",
+        "int"
+      ],
+      "default": null
     },
     {
       "name": "status",
       "type": {
         "type": "enum",
-        "name": "SoilSensorStatus",
+        "name": "DeviceStatus",
         "symbols": [
           "UNKNOWN",
-          "OK",
-          "LOW_BATTERY",
+          "OFFLINE",
+          "MAINTENANCE",
           "ERROR"
         ]
-      },
-      "default": "UNKNOWN"
-    },
-    {
-      "name": "isOnline",
-      "type": "boolean"
+      }
     },
     {
       "name": "lastUpdated",

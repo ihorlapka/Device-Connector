@@ -9,11 +9,19 @@
     },
     {
       "name": "currentTemperature",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
       "name": "targetTemperature",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
       "name": "humidity",
@@ -39,8 +47,17 @@
       "default": "UNKNOWN"
     },
     {
-      "name": "isOnline",
-      "type": "boolean"
+      "name": "status",
+      "type": {
+        "type": "enum",
+        "name": "DeviceStatus",
+        "symbols": [
+          "UNKNOWN",
+          "OFFLINE",
+          "MAINTENANCE",
+          "ERROR"
+        ]
+      }
     },
     {
       "name": "lastUpdated",

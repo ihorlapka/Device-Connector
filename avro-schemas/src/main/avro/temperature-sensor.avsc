@@ -9,11 +9,19 @@
     },
     {
       "name": "temperature",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
       "name": "humidity",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
       "name": "pressure",
@@ -38,8 +46,17 @@
       "default": "UNKNOWN"
     },
     {
-      "name": "isOnline",
-      "type": "boolean"
+      "name": "status",
+      "type": {
+        "type": "enum",
+        "name": "DeviceStatus",
+        "symbols": [
+          "UNKNOWN",
+          "OFFLINE",
+          "MAINTENANCE",
+          "ERROR"
+        ]
+      }
     },
     {
       "name": "lastUpdated",

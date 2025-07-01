@@ -9,27 +9,48 @@
     },
     {
       "name": "isOn",
-      "type": "boolean"
+      "type": [
+        "null",
+        "boolean"
+      ],
+      "default": null
     },
     {
       "name": "voltage",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
       "name": "current",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
       "name": "powerUsage",
-      "type": "float"
+      "type": [
+        "null",
+        "float"
+      ],
+      "default": null
     },
     {
-      "name": "isOverloaded",
-      "type": "boolean"
-    },
-    {
-      "name": "isOnline",
-      "type": "boolean"
+      "name": "status",
+      "type": {
+        "type": "enum",
+        "name": "DeviceStatus",
+        "symbols": [
+          "UNKNOWN",
+          "OFFLINE",
+          "MAINTENANCE",
+          "ERROR"
+        ]
+      }
     },
     {
       "name": "lastUpdated",
