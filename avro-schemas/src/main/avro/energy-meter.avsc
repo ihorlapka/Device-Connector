@@ -53,6 +53,14 @@
       }
     },
     {
+      "name": "firmwareVersion",
+      "type": [
+        "null",
+        "string"
+      ],
+      "default": null
+    },
+    {
       "name": "lastUpdated",
       "type": {
         "type": "long",
