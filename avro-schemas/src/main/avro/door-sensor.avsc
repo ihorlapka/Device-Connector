@@ -43,6 +43,7 @@
         "name": "DeviceStatus",
         "symbols": [
           "UNKNOWN",
+          "ONLINE",
           "OFFLINE",
           "MAINTENANCE",
           "ERROR"
