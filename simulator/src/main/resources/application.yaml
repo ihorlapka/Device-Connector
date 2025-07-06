@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: iot-devices-simulator
+server:
+  port: 8071
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+kafka:
+  producer:
+    topic: iot-devices-data
+    properties:
+      bootstrap.servers: localhost:9092
+      key.serializer: org.apache.kafka.common.serialization.StringSerializer
+      value.serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+      schema.registry.url: mock://my-scope:8081
+      value.subject.name.strategy: io.confluent.kafka.serializers.subject.TopicRecordNameStrategy
+      auto.register.schemas: true

@@ -57,7 +57,8 @@
           "MAINTENANCE",
           "ERROR"
         ]
-      }
+      },
+      "default": "UNKNOWN"
     },
     {
       "name": "firmwareVersion",
