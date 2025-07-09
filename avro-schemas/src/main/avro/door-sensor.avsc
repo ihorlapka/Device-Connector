@@ -9,16 +9,19 @@
     },
     {
       "name": "doorState",
-      "type": {
-        "type": "enum",
-        "name": "DoorState",
-        "symbols": [
-          "UNKNOWN",
-          "OPEN",
-          "CLOSED"
-        ]
-      },
-      "default": "UNKNOWN"
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "DoorState",
+          "symbols": [
+            "UNKNOWN",
+            "OPEN",
+            "CLOSED"
+          ]
+        }
+      ],
+      "default": null
     },
     {
       "name": "batteryLevel",
@@ -38,17 +41,21 @@
     },
     {
       "name": "status",
-      "type": {
-        "type": "enum",
-        "name": "DeviceStatus",
-        "symbols": [
-          "UNKNOWN",
-          "ONLINE",
-          "OFFLINE",
-          "MAINTENANCE",
-          "ERROR"
-        ]
-      }
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "DeviceStatus",
+          "symbols": [
+            "UNKNOWN",
+            "ONLINE",
+            "OFFLINE",
+            "MAINTENANCE",
+            "ERROR"
+          ]
+        }
+      ],
+      "default": null
     },
     {
       "name": "lastOpened",
