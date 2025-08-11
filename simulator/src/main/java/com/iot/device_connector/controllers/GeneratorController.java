@@ -1,4 +1,4 @@
-package com.iot.device_connector.rest;
+package com.iot.device_connector.controllers;
 
 import com.iot.device_connector.generator.TelemetryGenerator;
 import lombok.RequiredArgsConstructor;

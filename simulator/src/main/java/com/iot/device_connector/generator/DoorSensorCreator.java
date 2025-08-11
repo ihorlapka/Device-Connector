@@ -1,6 +1,6 @@
 package com.iot.device_connector.generator;
 
-import com.iot.device_connector.rest.Device;
+import com.iot.device_connector.model.Device;
 import com.iot.devices.DoorSensor;
 import lombok.RequiredArgsConstructor;
 import org.apache.avro.specific.SpecificRecord;
@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.iot.device_connector.generator.Utils.updateFirmwareVersion;
+import static com.iot.device_connector.generator.Utils.updateStatus;
 import static com.iot.devices.DeviceStatus.*;
 import static com.iot.devices.DoorState.CLOSED;
 import static com.iot.devices.DoorState.OPEN;
@@ -53,17 +54,8 @@ public class DoorSensorCreator {
             }
             case 1 -> doorSensor.setBatteryLevel(Math.max(0, doorSensor.getBatteryLevel() - 1));
             case 2 -> doorSensor.setTamperAlert((random.nextInt(9) == 0)) ;
-            case 3 -> {
-                int i = random.nextInt(20);
-                if (i == 0) {
-                    doorSensor.setStatus(OFFLINE);
-                } else if (i == 1) {
-                    doorSensor.setStatus(MAINTENANCE);
-                } else {
-                    doorSensor.setStatus(ONLINE);
-                }
-            }
-            case 4 -> updateFirmwareVersion(doorSensor);
+            case 3 -> doorSensor.setStatus(updateStatus(random));
+            case 4 -> doorSensor.setFirmwareVersion(updateFirmwareVersion(doorSensor.getFirmwareVersion()));
         }
         doorSensor.setLastUpdated(now());
         return doorSensor;

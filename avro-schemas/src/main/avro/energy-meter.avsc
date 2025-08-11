@@ -13,7 +13,8 @@
         "null",
         "float"
       ],
-      "default": null
+      "default": null,
+      "doc": "The electrical potential difference (in volts, standard 220)"
     },
     {
       "name": "current",
@@ -21,7 +22,8 @@
         "null",
         "float"
       ],
-      "default": null
+      "default": null,
+      "doc": "The electrical current flowing through the device’s circuit (in amperes)"
     },
     {
       "name": "power",
@@ -29,7 +31,8 @@
         "null",
         "float"
       ],
-      "default": null
+      "default": null,
+      "doc": "The instantaneous power consumption (in watts). This is typically calculated as voltage × current (with adjustments for power factor if AC)."
     },
     {
       "name": "energyConsumed",
@@ -37,7 +40,8 @@
         "null",
         "float"
       ],
-      "default": null
+      "default": null,
+      "doc": "The cumulative amount of electrical energy used (in kilowatt-hours or watt-hours), if set to 0 the counter just started or was reset."
     },
     {
       "name": "status",

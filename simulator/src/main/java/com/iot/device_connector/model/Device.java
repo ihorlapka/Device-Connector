@@ -1,8 +1,8 @@
-package com.iot.device_connector.rest;
+package com.iot.device_connector.model;
 
-import com.iot.device_connector.rest.enums.DeviceManufacturer;
-import com.iot.device_connector.rest.enums.DeviceStatus;
-import com.iot.device_connector.rest.enums.DeviceType;
+import com.iot.device_connector.model.enums.DeviceManufacturer;
+import com.iot.device_connector.model.enums.DeviceStatus;
+import com.iot.device_connector.model.enums.DeviceType;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;

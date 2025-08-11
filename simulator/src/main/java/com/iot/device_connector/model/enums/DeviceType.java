@@ -1,4 +1,4 @@
-package com.iot.device_connector.rest.enums;
+package com.iot.device_connector.model.enums;
 
 public enum DeviceType {
     THERMOSTAT,

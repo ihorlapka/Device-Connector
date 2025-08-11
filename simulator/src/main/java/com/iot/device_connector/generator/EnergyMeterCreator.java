@@ -1,7 +1,7 @@
 package com.iot.device_connector.generator;
 
-import com.iot.device_connector.rest.Device;
-import com.iot.devices.DoorSensor;
+import com.iot.device_connector.model.Device;
+import com.iot.devices.DeviceStatus;
 import com.iot.devices.EnergyMeter;
 import lombok.RequiredArgsConstructor;
 import org.apache.avro.specific.SpecificRecord;
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.iot.devices.DeviceStatus.*;
+import static com.iot.device_connector.generator.Utils.updateFirmwareVersion;
+import static com.iot.device_connector.generator.Utils.updateStatus;
+import static com.iot.devices.DeviceStatus.OFFLINE;
 import static com.iot.devices.DeviceStatus.ONLINE;
-import static com.iot.devices.DoorState.CLOSED;
-import static com.iot.devices.DoorState.OPEN;
 import static java.time.Instant.now;
 
 @Component
@@ -27,12 +27,12 @@ public class EnergyMeterCreator {
         if (!telemetriesById.containsKey(device.id().toString())) {
             final EnergyMeter energyMeter = EnergyMeter.newBuilder()
                     .setDeviceId(device.id().toString())
-//                    .setVoltage()
-//                    .setCurrent()
-//                    .setPower()
-//                    .setEnergyConsumed()
-//                    .setStatus()
-//                    .setFirmwareVersion()
+                    .setVoltage(230f)
+                    .setCurrent(4f)
+                    .setPower(800f)
+                    .setEnergyConsumed(0f)
+                    .setStatus(ONLINE)
+                    .setFirmwareVersion("2.1")
                     .setLastUpdated(now())
                     .build();
             telemetriesById.put(energyMeter.getDeviceId(), energyMeter);
@@ -43,37 +43,24 @@ public class EnergyMeterCreator {
     }
 
     private EnergyMeter updateTelemetries(EnergyMeter energyMeter) {
-        final int index = random.nextInt(5);
-//        switch (index) {
-//            case 0 -> {
-//                final boolean wasOpen = energyMeter.getDoorState().equals(OPEN);
-//                energyMeter.setDoorState(wasOpen ? CLOSED : OPEN);
-//                if (!wasOpen) {
-//                    energyMeter.setLastOpened(now());
-//                }
-//            }
-//            case 1 -> energyMeter.setBatteryLevel(Math.max(0, energyMeter.getBatteryLevel() - 1));
-//            case 2 -> energyMeter.setTamperAlert((random.nextInt(9) == 0)) ;
-//            case 3 -> {
-//                int i = random.nextInt(20);
-//                if (i == 0) {
-//                    energyMeter.setStatus(OFFLINE);
-//                } else if (i == 1) {
-//                    energyMeter.setStatus(MAINTENANCE);
-//                } else {
-//                    energyMeter.setStatus(ONLINE);
-//                }
-//            }
-//            case 4 -> {
-//                String firmwareVersion = energyMeter.getFirmwareVersion();
-//                int length = firmwareVersion.length();
-//                int updatedDigit = Integer.parseInt(String.valueOf(firmwareVersion.charAt(length - 1))) + 1;
-//                String substring = firmwareVersion.substring(0, length - 1);
-//                String newVersion = substring + updatedDigit;
-//                energyMeter.setFirmwareVersion(newVersion);
-//            }
-//        }
-//        energyMeter.setLastUpdated(now());
+        final int index = random.nextInt(10);
+        switch (index) {
+            case 0 -> {
+                DeviceStatus status = updateStatus(random);
+                energyMeter.setStatus(status);
+                if (status.equals(ONLINE) && energyMeter.getStatus().equals(OFFLINE)) {
+                    energyMeter.setEnergyConsumed(0f);
+                }
+            }
+            case 1 -> energyMeter.setFirmwareVersion(updateFirmwareVersion(energyMeter.getFirmwareVersion()));
+            default -> {
+                energyMeter.setVoltage(220 + random.nextFloat(-10, 11));
+                energyMeter.setCurrent(random.nextFloat(1, 10));
+                energyMeter.setPower(energyMeter.getVoltage() * energyMeter.getCurrent());
+                energyMeter.setEnergyConsumed(energyMeter.getEnergyConsumed() + energyMeter.getPower());
+            }
+        }
+        energyMeter.setLastUpdated(now());
         return energyMeter;
     }
 }

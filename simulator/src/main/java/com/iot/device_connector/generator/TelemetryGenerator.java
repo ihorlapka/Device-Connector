@@ -1,9 +1,8 @@
 package com.iot.device_connector.generator;
 
 import com.iot.device_connector.kafka.KafkaProducerRunner;
-import com.iot.device_connector.rest.Device;
-import com.iot.device_connector.rest.User;
-import com.iot.device_connector.rest.enums.DeviceType;
+import com.iot.device_connector.model.Device;
+import com.iot.device_connector.model.User;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +36,7 @@ public class TelemetryGenerator {
     private static final String URL = "http://localhost:8080/iot-registry/api/v1/users";
     private static final String SIZE = "size";
     private static final String PAGE = "page";
-    private static final int TIME_PERIOD_MS = 60_000;
+    private static final int ONE_MINUTE_MS = 60_000;
 
     private final AtomicInteger rpm = new AtomicInteger();
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -100,14 +99,12 @@ public class TelemetryGenerator {
         }
         while (!isShoutdown.get()) {
             try {
-                for (Device device : devices.stream().filter(x -> x.deviceType().equals(DeviceType.DOOR_SENSOR)).findFirst().stream().toList()) {
-                    final int timeout = TIME_PERIOD_MS / rpm.get();
-                    if (device.deviceType() == DeviceType.DOOR_SENSOR) { //TODO: remove
-                        final SpecificRecord record = telemetryCreator.create(device);
-                        log.info("Sending message, current time: {}, timeout: {} ms", now().truncatedTo(SECONDS), timeout);
-                        kafkaProducerRunner.sendMessage(device.id().toString(), record);
-                        sleep(timeout);
-                    }
+                for (Device device : devices) {
+                    final int timeout = ONE_MINUTE_MS / rpm.get();
+                    final SpecificRecord record = telemetryCreator.create(device);
+                    log.info("Sending message, current time: {}, timeout: {} ms", now().truncatedTo(SECONDS), timeout);
+                    kafkaProducerRunner.sendMessage(device.id().toString(), record);
+                    sleep(timeout);
                 }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

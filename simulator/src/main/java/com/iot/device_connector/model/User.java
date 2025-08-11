@@ -1,4 +1,4 @@
-package com.iot.device_connector.rest;
+package com.iot.device_connector.model;
 
 import java.util.Set;
 import java.util.UUID;
