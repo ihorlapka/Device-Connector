@@ -1,4 +1,4 @@
-package com.iot.device_connector.generator;
+package com.iot.device_connector.generator.creators;
 
 import com.iot.device_connector.model.Device;
 import com.iot.devices.DeviceStatus;

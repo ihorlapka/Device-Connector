@@ -1,19 +1,15 @@
 package com.iot.device_connector.kafka;
 
-import com.iot.devices.*;
-import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecord;
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
+import java.time.Duration;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 @Slf4j
 @Component
@@ -30,45 +26,37 @@ public class KafkaProducerRunner {
         this.producerProperties = producerProperties;
     }
 
-//    @PostConstruct
     public void sendMessage(String key, SpecificRecord record) {
-
-//        TemperatureSensor record = TemperatureSensor.newBuilder()
-//                .setDeviceId("dd4ed12c-2d4d-4c8f-ac7b-0ceb2d180ab7")
-//                .setLastUpdated(Instant.now())
-//                .setStatus(DeviceStatus.ONLINE)
-//                .setPressure(6f)
-//                .build();
-
-//        String timestamp = "2025-08-05T09:38:41.322+00:00";
-//        Instant instant = OffsetDateTime.parse(timestamp).toInstant();
-
-//        SoilMoistureSensor record = SoilMoistureSensor.newBuilder()
-//                .setDeviceId("0a6eb124-8e3a-4569-98c4-cdb16a2476e2")
-//                .setLastUpdated(Instant.now())
-//                .setStatus(DeviceStatus.ONLINE)
-//                .setBatteryLevel(65)
-//                .setMoisturePercentage(14f)
-//                .setFirmwareVersion("1.0.13")
-//                .setDoorState(DoorState.CLOSED)
-//                .build();
-
-//        log.info("\n" + SmartLight.SCHEMA$.toString());
-//        log.info("\n" + SmartPlug.SCHEMA$.toString());
-//        log.info("\n" + SoilMoistureSensor.SCHEMA$.toString());
-//        log.info("\n" + Thermostat.SCHEMA$.toString());
-
         try {
             final ProducerRecord<String, SpecificRecord> producerRecord = new ProducerRecord<>(producerProperties.getTopic(), key, record);
-            final Future<RecordMetadata> future = kafkaProducer.send(producerRecord);
-            final RecordMetadata recordMetadata = future.get();
-            if (recordMetadata.hasOffset()) {
-                log.info("Message is successfully sent {}", record);
-            }
-        } catch (InterruptedException | ExecutionException e) {
+            kafkaProducer.send(producerRecord, getCallback(record));
+        } catch (Exception e) {
             log.error("Failed to send message: {}", record, e);
-            throw new RuntimeException("Unable to send message!");
         }
+    }
 
+    private Callback getCallback(SpecificRecord telemetry) {
+        return (metadata, exception) -> {
+            if (exception != null) {
+                log.error("Failed to send telemetry to Kafka dead-letter topic: telemetry={}, error={}", telemetry, exception.getMessage(), exception);
+            } else {
+                log.debug("Successfully sent telemetry to dead-letter topic: topic={}, partition={}, offset={}",
+                        metadata.topic(), metadata.partition(), metadata.offset());
+            }
+        };
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        log.info("Shutting down KafkaProducer...");
+        if (kafkaProducer != null) {
+            try {
+                kafkaProducer.flush();
+                kafkaProducer.close(Duration.ofSeconds(10));
+                log.info("KafkaProducer closed successfully.");
+            } catch (Exception e) {
+                log.warn("Exception during KafkaProducer shutdown: {}", e.getMessage(), e);
+            }
+        }
     }
 }

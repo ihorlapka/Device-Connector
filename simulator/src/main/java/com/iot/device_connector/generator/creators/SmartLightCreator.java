@@ -1,4 +1,4 @@
-package com.iot.device_connector.generator;
+package com.iot.device_connector.generator.creators;
 
 import com.iot.device_connector.model.Device;
 import com.iot.devices.SmartLight;
@@ -39,7 +39,7 @@ public class SmartLightCreator {
             telemetriesById.put(smartLight.getDeviceId(), smartLight);
             return smartLight;
         } else {
-            return telemetriesById.computeIfPresent(device.id().toString(), (id, doorSensor) -> updateTelemetries(doorSensor));
+            return telemetriesById.computeIfPresent(device.id().toString(), (id, smartLight) -> updateTelemetries(smartLight));
         }
     }
 

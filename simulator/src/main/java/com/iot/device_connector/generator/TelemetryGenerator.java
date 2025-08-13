@@ -69,7 +69,10 @@ public class TelemetryGenerator {
     }
 
     private List<Device> loadDevices() {
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(URL).queryParam(SIZE, 30).queryParam(PAGE, 0);
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(URL)
+                .queryParam(SIZE, 30)
+                .queryParam(PAGE, 0);
+
         final ResponseEntity<List<User>> response = restTemplate.exchange(
                 builder.toUriString(),
                 HttpMethod.GET,
