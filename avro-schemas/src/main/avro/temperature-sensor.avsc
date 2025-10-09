@@ -33,38 +33,32 @@
     },
     {
       "name": "unit",
-      "type": [
-        "null",
-        {
-          "type": "enum",
-          "name": "TempUnit",
-          "symbols": [
-            "UNKNOWN",
-            "C",
-            "F",
-            "K"
-          ]
-        }
-      ],
-      "default": null
+      "type": {
+        "type": "enum",
+        "name": "TempUnit",
+        "symbols": [
+          "UNKNOWN",
+          "C",
+          "F",
+          "K"
+        ]
+      },
+      "default": "UNKNOWN"
     },
     {
       "name": "status",
-      "type": [
-        "null",
-        {
-          "type": "enum",
-          "name": "DeviceStatus",
-          "symbols": [
-            "UNKNOWN",
-            "ONLINE",
-            "OFFLINE",
-            "MAINTENANCE",
-            "ERROR"
-          ]
-        }
-      ],
-      "default": null
+      "type": {
+        "type": "enum",
+        "name": "DeviceStatus",
+        "symbols": [
+          "UNKNOWN",
+          "ONLINE",
+          "OFFLINE",
+          "MAINTENANCE",
+          "ERROR"
+        ]
+      },
+      "default": "UNKNOWN"
     },
     {
       "name": "firmwareVersion",

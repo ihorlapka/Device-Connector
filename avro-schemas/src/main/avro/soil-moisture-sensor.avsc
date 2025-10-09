@@ -33,21 +33,18 @@
     },
     {
       "name": "status",
-      "type": [
-        "null",
-        {
-          "type": "enum",
-          "name": "DeviceStatus",
-          "symbols": [
-            "UNKNOWN",
-            "ONLINE",
-            "OFFLINE",
-            "MAINTENANCE",
-            "ERROR"
-          ]
-        }
-      ],
-      "default": null
+      "type": {
+        "type": "enum",
+        "name": "DeviceStatus",
+        "symbols": [
+          "UNKNOWN",
+          "ONLINE",
+          "OFFLINE",
+          "MAINTENANCE",
+          "ERROR"
+        ]
+      },
+      "default": "UNKNOWN"
     },
     {
       "name": "firmwareVersion",
