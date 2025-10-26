@@ -33,27 +33,30 @@
     },
     {
       "name": "mode",
-      "type": {
-        "type": "enum",
-        "name": "SmartLightMode",
-        "symbols": [
-          "UNKNOWN",
-          "NORMAL",
-          "READING",
-          "RELAX",
-          "CONCENTRATE",
-          "NIGHT_LIGHT",
-          "SUNRISE",
-          "SUNSET",
-          "PARTY",
-          "COLOR_CYCLE",
-          "MUSIC_SYNC",
-          "MOVIE",
-          "AMBIENT",
-          "CUSTOM"
-        ]
-      },
-      "default": "UNKNOWN"
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "SmartLightMode",
+          "symbols": [
+            "UNKNOWN",
+            "NORMAL",
+            "READING",
+            "RELAX",
+            "CONCENTRATE",
+            "NIGHT_LIGHT",
+            "SUNRISE",
+            "SUNSET",
+            "PARTY",
+            "COLOR_CYCLE",
+            "MUSIC_SYNC",
+            "MOVIE",
+            "AMBIENT",
+            "CUSTOM"
+          ]
+        }
+      ],
+      "default": null
     },
     {
       "name": "powerConsumption",
@@ -65,18 +68,21 @@
     },
     {
       "name": "status",
-      "type": {
-        "type": "enum",
-        "name": "DeviceStatus",
-        "symbols": [
-          "UNKNOWN",
-          "ONLINE",
-          "OFFLINE",
-          "MAINTENANCE",
-          "ERROR"
-        ]
-      },
-      "default": "UNKNOWN"
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "DeviceStatus",
+          "symbols": [
+            "UNKNOWN",
+            "ONLINE",
+            "OFFLINE",
+            "MAINTENANCE",
+            "ERROR"
+          ]
+        }
+      ],
+      "default": null
     },
     {
       "name": "firmwareVersion",

@@ -33,33 +33,39 @@
     },
     {
       "name": "mode",
-      "type": {
-        "type": "enum",
-        "name": "ThermostatMode",
-        "symbols": [
-          "UNKNOWN",
-          "HEAT",
-          "COOL",
-          "AUTO",
-          "OFF"
-        ]
-      },
-      "default": "UNKNOWN"
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "ThermostatMode",
+          "symbols": [
+            "UNKNOWN",
+            "HEAT",
+            "COOL",
+            "AUTO",
+            "OFF"
+          ]
+        }
+      ],
+      "default": null
     },
     {
       "name": "status",
-      "type": {
-        "type": "enum",
-        "name": "DeviceStatus",
-        "symbols": [
-          "UNKNOWN",
-          "ONLINE",
-          "OFFLINE",
-          "MAINTENANCE",
-          "ERROR"
-        ]
-      },
-      "default": "UNKNOWN"
+      "type": [
+        "null",
+        {
+          "type": "enum",
+          "name": "DeviceStatus",
+          "symbols": [
+            "UNKNOWN",
+            "ONLINE",
+            "OFFLINE",
+            "MAINTENANCE",
+            "ERROR"
+          ]
+        }
+      ],
+      "default": null
     },
     {
       "name": "firmwareVersion",
