@@ -13,13 +13,13 @@ import java.util.Properties;
 
 @Slf4j
 @Component
-public class KafkaProducerRunner {
+public class TelemetriesKafkaProducerRunner {
 
-    private final KafkaProducerProperties producerProperties;
+    private final TelemetriesKafkaProducerProperties producerProperties;
     private final KafkaProducer<String, SpecificRecord> kafkaProducer;
 
 
-    public KafkaProducerRunner(KafkaProducerProperties producerProperties) {
+    public TelemetriesKafkaProducerRunner(TelemetriesKafkaProducerProperties producerProperties) {
         Properties properties = new Properties();
         properties.putAll(producerProperties.getProperties());
         this.kafkaProducer = new KafkaProducer<>(properties);

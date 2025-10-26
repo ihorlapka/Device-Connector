@@ -19,9 +19,9 @@ import java.util.Map;
 @Setter
 @ToString
 @Configuration
-@ConfigurationProperties(KafkaProducerProperties.PROPERTIES_PREFIX)
+@ConfigurationProperties(TelemetriesKafkaProducerProperties.PROPERTIES_PREFIX)
 @RequiredArgsConstructor
-public class KafkaProducerProperties {
+public class TelemetriesKafkaProducerProperties {
 
     final static String PROPERTIES_PREFIX = "kafka.producer";
 

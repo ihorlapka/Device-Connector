@@ -2,7 +2,7 @@ package com.iot.device_connector.generator;
 
 import com.iot.device_connector.auth.AuthenticationRequest;
 import com.iot.device_connector.auth.AuthenticationResponse;
-import com.iot.device_connector.kafka.KafkaProducerRunner;
+import com.iot.device_connector.kafka.TelemetriesKafkaProducerRunner;
 import com.iot.device_connector.model.Device;
 import com.iot.device_connector.model.User;
 import jakarta.annotation.PostConstruct;
@@ -45,7 +45,7 @@ public class TelemetryGenerator {
     private static final int ONE_MINUTE_MS = 60_000;
     private static final String USERNAME = "";
     private static final String PASSWORD = "";
-    private static final String TOKEN_PREFIX = "Bearer ";
+    static final String TOKEN_PREFIX = "Bearer ";
 
     private final AtomicInteger rpm = new AtomicInteger();
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -53,7 +53,7 @@ public class TelemetryGenerator {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final RestTemplate restTemplate;
-    private final KafkaProducerRunner kafkaProducerRunner;
+    private final TelemetriesKafkaProducerRunner kafkaProducerRunner;
     private final TelemetryCreator telemetryCreator;
 
 
