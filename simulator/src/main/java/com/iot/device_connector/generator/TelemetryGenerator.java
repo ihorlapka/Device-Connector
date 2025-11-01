@@ -55,13 +55,17 @@ public class TelemetryGenerator {
     private final RestTemplate restTemplate;
     private final TelemetriesKafkaProducerRunner kafkaProducerRunner;
     private final TelemetryCreator telemetryCreator;
+    private final AlertingRulesCreator alertingRulesCreator;
 
 
     @PostConstruct
     public void generate() {
         final AuthenticationResponse authResponse = login();
         final List<Device> devices = loadDevices(authResponse);
-        executorService.submit(() -> createTelemetries(devices));
+        executorService.submit(() -> {
+//            createTelemetries(devices);
+            alertingRulesCreator.create(devices, authResponse);
+        });
     }
 
     public void startWithRpm(int newRpm) {

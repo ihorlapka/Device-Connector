@@ -16,6 +16,5 @@ public record CreateAlertRuleRequest(
         @NonNull
         SeverityLevel severity,
         @NonNull
-        Boolean isEnabled,
-        String username) {
+        Boolean isEnabled) {
 }
