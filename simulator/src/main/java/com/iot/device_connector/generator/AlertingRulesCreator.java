@@ -13,6 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.iot.device_connector.generator.TelemetryGenerator.TOKEN_PREFIX;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -33,9 +34,13 @@ public class AlertingRulesCreator {
             List<RequestEntity<CreateAlertRuleRequest>> alertRulesRequests = buildHttpEntities(device, authResponse, builder);
 
             for (RequestEntity<CreateAlertRuleRequest> alertRuleRequest : alertRulesRequests) {
-                log.info("Sending create alert rule request for deviceId={}, {}", device.id(), alertRuleRequest);
-                ResponseEntity<AlertRuleResponse> response = restTemplate.postForEntity(builder.toUriString(), alertRuleRequest, AlertRuleResponse.class, Map.of());
-                log.info("Response: {}", response.getBody());
+                try {
+                    log.info("Sending create alert rule request for deviceId={}, {}", device.id(), alertRuleRequest);
+                    ResponseEntity<AlertRuleResponse> response = restTemplate.postForEntity(builder.toUriString(), alertRuleRequest, AlertRuleResponse.class, Map.of());
+                    log.info("Response: {}", response.getBody());
+                } catch (Exception e) {
+                    log.error("Unexpected exception occurred: {}", alertRuleRequest, e);
+                }
             }
         }
     }
@@ -45,7 +50,7 @@ public class AlertingRulesCreator {
         final MultiValueMap<String, String> headers = new HttpHeaders();
         headers.add(AUTHORIZATION, TOKEN_PREFIX + authResponse.getAccessToken());
         return alertRulesProvider.getAlertRules(device.deviceType()).stream()
-                .map(alertRule -> new CreateAlertRuleRequest(device.id(), alertRule.metricType(),
+                .map(alertRule -> new CreateAlertRuleRequest(Set.of(device.id()), alertRule.metricType(),
                         alertRule.thresholdType(), alertRule.thresholdValue(), alertRule.severity(), true))
                 .map(request -> new RequestEntity<>(request, headers, HttpMethod.POST, builder.build(Map.of())))
                 .toList();

@@ -63,8 +63,12 @@ public class TelemetryGenerator {
         final AuthenticationResponse authResponse = login();
         final List<Device> devices = loadDevices(authResponse);
         executorService.submit(() -> {
-//            createTelemetries(devices);
-            alertingRulesCreator.create(devices, authResponse);
+            try {
+                createTelemetries(devices);
+//                alertingRulesCreator.create(devices, authResponse);
+            } finally {
+                logout(authResponse);
+            }
         });
     }
 
@@ -83,30 +87,26 @@ public class TelemetryGenerator {
     }
 
     private List<Device> loadDevices(AuthenticationResponse authResponse) {
-        try {
-            final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(DEVICES_URL)
-                    .queryParam(SIZE, 30)
-                    .queryParam(PAGE, 0);
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(DEVICES_URL)
+                .queryParam(SIZE, 30)
+                .queryParam(PAGE, 0);
 
-            HttpEntity<?> requestEntity = buildHttpEntity(authResponse, builder);
-            final ResponseEntity<List<User>> response = restTemplate.exchange(
-                    builder.toUriString(),
-                    HttpMethod.GET,
-                    requestEntity,
-                    new ParameterizedTypeReference<>() {
-                    }
-            );
-            final List<User> users = response.getBody();
-            assert (users != null);
-            final List<Device> devices = users.stream()
-                    .map(User::devices)
-                    .flatMap(Collection::stream)
-                    .toList();
-            log.info("Received {} users with {} devices", users.size(), devices.size());
-            return devices;
-        } finally {
-            logout(authResponse);
-        }
+        HttpEntity<?> requestEntity = buildHttpEntity(authResponse, builder);
+        final ResponseEntity<List<User>> response = restTemplate.exchange(
+                builder.toUriString(),
+                HttpMethod.GET,
+                requestEntity,
+                new ParameterizedTypeReference<>() {
+                }
+        );
+        final List<User> users = response.getBody();
+        assert (users != null);
+        final List<Device> devices = users.stream()
+                .map(User::devices)
+                .flatMap(Collection::stream)
+                .toList();
+        log.info("Received {} users with {} devices", users.size(), devices.size());
+        return devices;
     }
 
     private AuthenticationResponse login() {
