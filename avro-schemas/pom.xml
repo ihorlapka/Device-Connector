@@ -21,14 +21,14 @@
 
     <distributionManagement>
         <repository>
-            <id>github</id>
-            <name>GitHub Packages</name>
-            <url>https://maven.pkg.github.com/ihorlapka/Device-Connector</url>
+            <id>nexus-releases</id>
+            <name>Nexus Release Repository</name>
+            <url>http://localhost:8089/repository/maven-releases/</url>
         </repository>
         <snapshotRepository>
-            <id>github</id>
-            <name>GitHub Packages Snapshots</name>
-            <url>https://maven.pkg.github.com/ihorlapka/Device-Connector</url>
+            <id>nexus-snapshots</id>
+            <name>Nexus Snapshot Repository</name>
+            <url>http://localhost:8089/repository/maven-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
