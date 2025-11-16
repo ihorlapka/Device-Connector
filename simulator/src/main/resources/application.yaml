@@ -2,7 +2,7 @@ spring:
   application:
     name: iot-devices-simulator
 server:
-  port: 8084
+  port: 8086
   servlet:
     context-path: /iot-device-connector
 management:
@@ -21,5 +21,5 @@ kafka:
       key.serializer: org.apache.kafka.common.serialization.StringSerializer
       value.serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
       schema.registry.url: http://localhost:8081
-      value.subject.name.strategy: io.confluent.kafka.serializers.subject.TopicRecordNameStrategy
+      value.subject.name.strategy: io.confluent.kafka.serializers.subject.RecordNameStrategy
       auto.register.schemas: false
