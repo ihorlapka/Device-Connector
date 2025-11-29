@@ -2,6 +2,16 @@
 <project version="4">
   <component name="RemoteRepositoriesConfiguration">
     <remote-repository>
+      <option name="id" value="github-telemetry-processor" />
+      <option name="name" value="github-telemetry-processor" />
+      <option name="url" value="https://maven.pkg.github.com/ihorlapka/Telemetry-Event-Processor" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="github-device-connector" />
+      <option name="name" value="github-device-connector" />
+      <option name="url" value="https://maven.pkg.github.com/${MAVEN_USER}/Device-Connector" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
       <option name="url" value="https://repo.maven.apache.org/maven2" />
@@ -12,9 +22,19 @@
       <option name="url" value="https://repo1.maven.org/maven2" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="github-device-connector" />
+      <option name="name" value="github-device-connector" />
+      <option name="url" value="https://maven.pkg.github.com/ihorlapka/Device-Connector" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="jboss.community" />
       <option name="name" value="JBoss Community repository" />
       <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="github-telemetry-processor" />
+      <option name="name" value="github-telemetry-processor" />
+      <option name="url" value="https://maven.pkg.github.com/${MAVEN_USER}/Telemetry-Event-Processor" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="confluent" />
