@@ -40,6 +40,6 @@ jobs:
       uses: docker/build-push-action@v6.18.0
       with:
         context: .
-        file: .simulator/Dockerfile
+        file: ./Dockerfile
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/iot-simulator:latest
