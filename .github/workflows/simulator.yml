@@ -37,7 +37,7 @@ jobs:
     - name: Copy settings.xml to build context
       run: |
         mkdir -p ci
-        cp ~/.m2/settings.xml ci/settings.xml
+        cp ${{ github.workspace }}/settings.xml ci/settings.xml
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3.11.1
     - name: Docker Login
