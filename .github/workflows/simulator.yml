@@ -31,8 +31,6 @@ jobs:
         token: ${{ secrets.GH_PACKAGES_TOKEN }}
         cache: maven
     - name: Build with Maven
-      env: 
-        GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
       run: mvn -pl simulator -am -B package --file pom.xml
     - name: Copy settings.xml to build context
       run: |
