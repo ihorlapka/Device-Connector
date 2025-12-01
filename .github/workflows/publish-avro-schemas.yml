@@ -21,9 +21,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          server-id: github
           settings-path: ${{ github.workspace }}
-
       - name: Publish avro-schemas
         run: mvn -pl avro-schemas -am package -s $GITHUB_WORKSPACE/settings.xml
         env:
