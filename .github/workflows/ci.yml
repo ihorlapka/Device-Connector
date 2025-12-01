@@ -9,7 +9,6 @@ jobs:
     permissions:
       contents: read
       packages: write
-
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 21
@@ -17,12 +16,8 @@ jobs:
       with:
         java-version: '21'
         distribution: 'temurin'
-        server-id: github
-        settings-path: ${{ github.workspace }}
-
     - name: Build with Maven
       run: mvn -B -e package --file pom.xml
-
     - name: Publish to GitHub Packages Apache Maven
       run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
       env:
