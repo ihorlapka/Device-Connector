@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>simulator</artifactId>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
 
     <name>simulator</name>
     <url>http://maven.apache.org</url>
