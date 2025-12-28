@@ -8,10 +8,8 @@ COPY simulator/pom.xml .
 COPY simulator/src ./src
 COPY /ci/settings.xml /root/.m2/settings.xml
 RUN mvn -B -s /root/.m2/settings.xml -U -DskipTests package
-RUN ls -l target/
 RUN mv target/*.jar target/app.jar
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/app.jar .
-RUN ls -l /app/app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]

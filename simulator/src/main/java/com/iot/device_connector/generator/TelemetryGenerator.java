@@ -37,9 +37,9 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 public class TelemetryGenerator {
 
-    private static final String DEVICES_URL = "http://localhost:8080/iot-registry/api/v1/users/all";
-    private static final String LOGIN_URL = "http://localhost:8080/iot-registry/api/v1/authentication/login";
-    private static final String LOGOUT_URL = "http://localhost:8080/iot-registry/api/v1/authentication/logout";
+    private static final String DEVICES_URL = "http://iot.local/iot-registry/api/v1/users/all";
+    private static final String LOGIN_URL = "http://iot.local/iot-registry/api/v1/authentication/login";
+    private static final String LOGOUT_URL = "http://iot.local/iot-registry/api/v1/authentication/logout";
     private static final String SIZE = "size";
     private static final String PAGE = "page";
     private static final int ONE_MINUTE_MS = 60_000;
