@@ -43,8 +43,8 @@ public class TelemetryGenerator {
     private static final String SIZE = "size";
     private static final String PAGE = "page";
     private static final int ONE_MINUTE_MS = 60_000;
-    private static final String USERNAME = "";
-    private static final String PASSWORD = "";
+    private static final String USERNAME = System.getProperty("USERNAME");
+    private static final String PASSWORD = System.getProperty("PASSWORD");
     static final String TOKEN_PREFIX = "Bearer ";
 
     private final AtomicInteger rpm = new AtomicInteger();
