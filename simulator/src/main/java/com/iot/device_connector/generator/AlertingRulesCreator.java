@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.iot.device_connector.generator.TelemetryGenerator.TOKEN_PREFIX;
+import static com.iot.device_connector.generator.TelemetryGenerator.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
@@ -26,11 +26,11 @@ public class AlertingRulesCreator {
     private final RestTemplate restTemplate;
     private final DefaultAlertRulesProvider alertRulesProvider;
 
-    private static final String ALERT_RULES_URL = "http://localhost:8080/iot-registry/api/v1/alertRules";
+    private static final String ALERT_RULES_URL = "/iot-registry/api/v1/alertRules";
 
     public void create(List<Device> devices, AuthenticationResponse authResponse) {
         for (Device device : devices) {
-            final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(ALERT_RULES_URL);
+            final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(HTTP + HOSTNAME + ALERT_RULES_URL);
             List<RequestEntity<CreateAlertRuleRequest>> alertRulesRequests = buildHttpEntities(device, authResponse, builder);
 
             for (RequestEntity<CreateAlertRuleRequest> alertRuleRequest : alertRulesRequests) {
