@@ -37,8 +37,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 public class TelemetryGenerator {
 
-    public static final String HTTP = "http://";
-    public static final String HOSTNAME = System.getProperty("HOSTNAME");
+
+    public static final String REGISTRY_BASE_URL = System.getenv("REGISTRY_BASE_URL");
 
     private static final String DEVICES_URL = "/iot-registry/api/v1/users/all";
     private static final String LOGIN_URL = "/iot-registry/api/v1/authentication/login";
@@ -46,8 +46,8 @@ public class TelemetryGenerator {
     private static final String SIZE = "size";
     private static final String PAGE = "page";
     private static final int ONE_MINUTE_MS = 60_000;
-    private static final String USERNAME = System.getProperty("USERNAME");
-    private static final String PASSWORD = System.getProperty("PASSWORD");
+    private static final String USERNAME = System.getenv("USERNAME");
+    private static final String PASSWORD = System.getenv("PASSWORD");
     static final String TOKEN_PREFIX = "Bearer ";
 
     private final AtomicInteger rpm = new AtomicInteger();
@@ -90,7 +90,7 @@ public class TelemetryGenerator {
     }
 
     private List<Device> loadDevices(AuthenticationResponse authResponse) {
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(HTTP + HOSTNAME + DEVICES_URL)
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + DEVICES_URL)
                 .queryParam(SIZE, 30)
                 .queryParam(PAGE, 0);
 
@@ -113,7 +113,7 @@ public class TelemetryGenerator {
     }
 
     private AuthenticationResponse login() {
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(HTTP + HOSTNAME + LOGIN_URL);
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + LOGIN_URL);
         final AuthenticationRequest request = new AuthenticationRequest(USERNAME, PASSWORD);
         ResponseEntity<AuthenticationResponse> authResponse = restTemplate.postForEntity(builder.toUriString(), request, AuthenticationResponse.class, Map.of());
         log.info("Simulator app is logged in!");
@@ -121,7 +121,7 @@ public class TelemetryGenerator {
     }
 
     private void logout(AuthenticationResponse authResponse) {
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(HTTP + HOSTNAME + LOGOUT_URL);
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + LOGOUT_URL);
         HttpEntity<?> httpEntity = buildHttpEntity(authResponse, builder);
         restTemplate.postForEntity(builder.toUriString(), httpEntity, Void.class, Map.of());
         log.info("Simulator app is logged out!");

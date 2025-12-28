@@ -30,7 +30,7 @@ public class AlertingRulesCreator {
 
     public void create(List<Device> devices, AuthenticationResponse authResponse) {
         for (Device device : devices) {
-            final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(HTTP + HOSTNAME + ALERT_RULES_URL);
+            final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + ALERT_RULES_URL);
             List<RequestEntity<CreateAlertRuleRequest>> alertRulesRequests = buildHttpEntities(device, authResponse, builder);
 
             for (RequestEntity<CreateAlertRuleRequest> alertRuleRequest : alertRulesRequests) {
