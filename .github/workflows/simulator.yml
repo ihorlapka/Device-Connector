@@ -48,7 +48,7 @@ jobs:
         context: .
         file: ./simulator/Dockerfile
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/iot-simulator:latest
+        tags: ${{ secrets.DOCKER_USERNAME }}/iot-simulator:create-alert-rules
         build-args: |
           GITHUB_ACTOR=${{ github.actor }}
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}

@@ -67,8 +67,8 @@ public class TelemetryGenerator {
         final List<Device> devices = loadDevices(authResponse);
         executorService.submit(() -> {
             try {
-                createTelemetries(devices);
-//                alertingRulesCreator.create(devices, authResponse);
+//                createTelemetries(devices);
+                alertingRulesCreator.create(devices, authResponse);
             } finally {
                 logout(authResponse);
             }
