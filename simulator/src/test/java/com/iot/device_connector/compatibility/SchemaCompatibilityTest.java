@@ -13,7 +13,7 @@ import java.io.IOException;
 @Slf4j
 public class SchemaCompatibilityTest {
 
-    private static final String SCHEMA_REGISTRY_URL = "http://localhost:8081";
+    private static final String SCHEMA_REGISTRY_URL = "http://schema-registry-svc:8081";
 
     @Test
     void compatibilityTest() throws IOException, RestClientException {
