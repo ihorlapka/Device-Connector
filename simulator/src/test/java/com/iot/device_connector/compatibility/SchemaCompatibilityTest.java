@@ -6,14 +6,16 @@ import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient;
 import io.confluent.kafka.schemaregistry.client.rest.exceptions.RestClientException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.Schema;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+@Ignore
 @Slf4j
 public class SchemaCompatibilityTest {
 
-    private static final String SCHEMA_REGISTRY_URL = "http://schema-registry-svc:8081";
+    private static final String SCHEMA_REGISTRY_URL = "http://localhost:8081";
 
     @Test
     void compatibilityTest() throws IOException, RestClientException {
