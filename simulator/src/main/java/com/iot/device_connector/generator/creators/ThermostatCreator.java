@@ -29,7 +29,7 @@ public class ThermostatCreator {
                     .setDeviceId(device.id().toString())
                     .setCurrentTemperature(22f)
                     .setTargetTemperature(25f)
-                    .setHumidity(8f)
+                    .setHumidity(45f)
                     .setMode(HEAT)
                     .setStatus(ONLINE)
                     .setFirmwareVersion("2.1")

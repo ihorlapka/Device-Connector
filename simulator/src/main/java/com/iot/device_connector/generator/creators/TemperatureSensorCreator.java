@@ -27,7 +27,7 @@ public class TemperatureSensorCreator {
             final TemperatureSensor temperatureSensor = TemperatureSensor.newBuilder()
                     .setDeviceId(device.id().toString())
                     .setTemperature(22f)
-                    .setHumidity(8f)
+                    .setHumidity(45f)
                     .setPressure(0.5f)
                     .setUnit(TempUnit.C)
                     .setStatus(ONLINE)

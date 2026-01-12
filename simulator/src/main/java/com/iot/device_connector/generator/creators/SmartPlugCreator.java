@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.iot.device_connector.generator.Utils.updateFirmwareVersion;
-import static com.iot.device_connector.generator.Utils.updateStatus;
+import static com.iot.device_connector.generator.Utils.*;
 import static com.iot.devices.DeviceStatus.ONLINE;
 import static java.time.Instant.now;
 
@@ -27,8 +26,8 @@ public class SmartPlugCreator {
                     .setDeviceId(device.id().toString())
                     .setIsOn(true)
                     .setVoltage(220f)
-                    .setCurrent(2f)
-                    .setPowerUsage(440f)
+                    .setCurrent(8f)
+                    .setPowerUsage(1760f)
                     .setStatus(ONLINE)
                     .setFirmwareVersion("5.4.0")
                     .setLastUpdated(now())
@@ -48,8 +47,8 @@ public class SmartPlugCreator {
             case 2 -> smartLight.setFirmwareVersion(updateFirmwareVersion(smartLight.getFirmwareVersion()));
             default -> {
                 if (smartLight.getIsOn()) {
-                    smartLight.setVoltage(220 + random.nextFloat(-10, 11));
-                    smartLight.setCurrent(random.nextFloat(1, 10));
+                    smartLight.setVoltage(smartLight.getVoltage() + getRandomRoundedFloat(-2, 3));
+                    smartLight.setCurrent(smartLight.getCurrent() + getRandomRoundedFloat(-1, 2));
                     smartLight.setPowerUsage(smartLight.getVoltage() * smartLight.getCurrent());
                 } else {
                     smartLight.setIsOn(true);

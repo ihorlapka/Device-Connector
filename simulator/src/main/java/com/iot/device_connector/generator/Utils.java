@@ -3,13 +3,17 @@ package com.iot.device_connector.generator;
 import com.iot.devices.DeviceStatus;
 import lombok.experimental.UtilityClass;
 
+import java.math.BigDecimal;
 import java.util.Random;
 
 import static com.iot.devices.DeviceStatus.*;
+import static java.math.RoundingMode.HALF_UP;
 
 
 @UtilityClass
 public class Utils {
+
+    private static final Random random = new Random();
 
     public static String updateFirmwareVersion(String firmwareVersion) {
 //        int length = firmwareVersion.length();
@@ -27,5 +31,9 @@ public class Utils {
             case 2 -> MAINTENANCE;
             default -> ONLINE;
         };
+    }
+
+    public static float getRandomRoundedFloat(int from, int to) {
+        return BigDecimal.valueOf(random.nextFloat(from, to)).setScale(2, HALF_UP).floatValue();
     }
 }

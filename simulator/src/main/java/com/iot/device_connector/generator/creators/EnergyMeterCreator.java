@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.iot.device_connector.generator.Utils.updateFirmwareVersion;
-import static com.iot.device_connector.generator.Utils.updateStatus;
+import static com.iot.device_connector.generator.Utils.*;
 import static com.iot.devices.DeviceStatus.OFFLINE;
 import static com.iot.devices.DeviceStatus.ONLINE;
 import static java.time.Instant.now;
@@ -27,10 +26,10 @@ public class EnergyMeterCreator {
         if (!telemetriesById.containsKey(device.id().toString())) {
             final EnergyMeter energyMeter = EnergyMeter.newBuilder()
                     .setDeviceId(device.id().toString())
-                    .setVoltage(230f)
-                    .setCurrent(4f)
-                    .setPower(800f)
-                    .setEnergyConsumed(0f)
+                    .setVoltage(220f)
+                    .setCurrent(7f)
+                    .setPower(1540f)
+                    .setEnergyConsumed(1540f)
                     .setStatus(ONLINE)
                     .setFirmwareVersion("2.1")
                     .setLastUpdated(now())
@@ -46,16 +45,16 @@ public class EnergyMeterCreator {
         final int index = random.nextInt(10);
         switch (index) {
             case 0 -> {
-                DeviceStatus status = updateStatus(random);
+                final DeviceStatus status = updateStatus(random);
                 energyMeter.setStatus(status);
-                if (status.equals(ONLINE) && energyMeter.getStatus().equals(OFFLINE)) {
+                if (status.equals(OFFLINE)) {
                     energyMeter.setEnergyConsumed(0f);
                 }
             }
             case 1 -> energyMeter.setFirmwareVersion(updateFirmwareVersion(energyMeter.getFirmwareVersion()));
             default -> {
-                energyMeter.setVoltage(220 + random.nextFloat(-10, 11));
-                energyMeter.setCurrent(random.nextFloat(1, 10));
+                energyMeter.setVoltage(energyMeter.getVoltage() + getRandomRoundedFloat(-2, 3));
+                energyMeter.setCurrent(energyMeter.getCurrent() + getRandomRoundedFloat(-1, 2));
                 energyMeter.setPower(energyMeter.getVoltage() * energyMeter.getCurrent());
                 energyMeter.setEnergyConsumed(energyMeter.getEnergyConsumed() + energyMeter.getPower());
             }

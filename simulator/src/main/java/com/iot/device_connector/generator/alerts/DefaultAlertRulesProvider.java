@@ -84,8 +84,8 @@ public class DefaultAlertRulesProvider {
 
     private Set<AlertRule> getSmartLightAlertRules() {
         return Set.of(
-                new AlertRule(null, ENERGY_CONSUMED, GREATER_THAN, 12f, CRITICAL, true),
-                new AlertRule(null, ENERGY_CONSUMED, GREATER_THAN, 18f, CRITICAL, true),
+                new AlertRule(null, ENERGY_CONSUMED, GREATER_THAN, 12f, INFO, true),
+                new AlertRule(null, ENERGY_CONSUMED, GREATER_THAN, 18f, WARNING, true),
                 new AlertRule(null, ENERGY_CONSUMED, GREATER_THAN, 30f, CRITICAL, true)
         );
     }
@@ -144,7 +144,7 @@ public class DefaultAlertRulesProvider {
                 new AlertRule(null, TEMPERATURE, GREATER_THAN, 25.f, INFO, true),
                 new AlertRule(null, TEMPERATURE, GREATER_THAN, 30.f, WARNING, true),
                 new AlertRule(null, TEMPERATURE, GREATER_THAN, 35.f, CRITICAL, true),
-                new AlertRule(null, TEMPERATURE, LESS_THAN, 20.f, INFO, true),
+                new AlertRule(null, TEMPERATURE, LESS_THAN, 18.f, INFO, true),
                 new AlertRule(null, TEMPERATURE, LESS_THAN, 16.f, WARNING, true),
                 new AlertRule(null, TEMPERATURE, LESS_THAN, 12.f, CRITICAL, true),
                 new AlertRule(null, HUMIDITY, GREATER_THAN, 60.f, INFO, true),
