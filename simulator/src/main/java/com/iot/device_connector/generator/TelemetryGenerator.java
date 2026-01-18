@@ -91,7 +91,7 @@ public class TelemetryGenerator {
 
     private List<Device> loadDevices(AuthenticationResponse authResponse) {
         final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + DEVICES_URL)
-                .queryParam(SIZE, 30)
+                .queryParam(SIZE, 40)
                 .queryParam(PAGE, 0);
 
         HttpEntity<?> requestEntity = buildHttpEntity(authResponse, builder);
