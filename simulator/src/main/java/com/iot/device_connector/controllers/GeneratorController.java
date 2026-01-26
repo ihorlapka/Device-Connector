@@ -21,7 +21,7 @@ public class GeneratorController {
         return ResponseEntity.ok("Set creation of telemetries to " + rpm + " rpm");
     }
 
-    @PostMapping("/username/{username}/rpm/{rpm}")
+    @PostMapping
     public ResponseEntity<String> generateForUser(@RequestBody GenerateTelemetryRequest request) {
         userTelemetriesGenerator.startForDevices(request.username(), request.deviceIds(), request.rpm());
         return ResponseEntity.ok("Set creation of telemetries to " + request.rpm() + " rpm for user: " + request.username());
