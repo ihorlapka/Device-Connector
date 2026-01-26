@@ -23,7 +23,7 @@ public class GeneratorController {
         return ResponseEntity.ok("Set creation of telemetries to " + rpm + " rpm");
     }
 
-    @GetMapping("/rpm/{rpm}")
+    @GetMapping("/generateAlertRules")
     public ResponseEntity<String> generateRules() {
         rulesGenerator.generate();
         return ResponseEntity.ok("Generating standard alert rules for all users' devices");
