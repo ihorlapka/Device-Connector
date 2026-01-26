@@ -4,7 +4,6 @@ import com.iot.device_connector.auth.AuthenticationResponse;
 import com.iot.device_connector.kafka.TelemetriesKafkaProducerRunner;
 import com.iot.device_connector.model.Device;
 import com.iot.device_connector.model.User;
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
@@ -15,14 +14,11 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static java.lang.Thread.sleep;
-
 @Slf4j
 @Component
 public class TelemetryGenerator extends AbstractGenerator {
 
     private final AtomicInteger rpm = new AtomicInteger();
-    private final CountDownLatch countDownLatch = new CountDownLatch(1);
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public TelemetryGenerator(RestTemplate restTemplate, TelemetriesKafkaProducerRunner kafkaProducerRunner,
@@ -30,42 +26,22 @@ public class TelemetryGenerator extends AbstractGenerator {
         super(restTemplate, kafkaProducerRunner, telemetryCreator);
     }
 
-    @PostConstruct
-    public void generate() {
+    public void startWithRpm(int newRpm) {
+        log.info("Setting new rpm={}", newRpm);
+        rpm.set(newRpm);
+        if (!getIsStarted().get()) {
+            start();
+            executorService.submit(this::generate);
+        }
+    }
+
+    private void generate() {
         final AuthenticationResponse authResponse = login();
         final List<Device> devices = loadDevices(authResponse, "",
                 new ParameterizedTypeReference<List<User>>() {}, getDevicesFromManyUsersFunction());
-        executorService.submit(() -> {
-            try {
-                lockUntilTriggered();
-                createTelemetries(devices, rpm);
-            } finally {
-                logout(authResponse);
-            }
-        });
-    }
-
-    public void startWithRpm(int newRpm) {
-        rpm.set(newRpm);
-        if (countDownLatch.getCount() == 1) {
-            log.info("Released latch, set rpm to {}", newRpm);
-            countDownLatch.countDown();
-        } else {
-            log.info("Changed rpm={}", countDownLatch.getCount());
-        }
-    }
-
-    private void lockUntilTriggered() {
-        try {
-            if (countDownLatch.getCount() > 0) {
-                log.info("Current rpm={} waiting until it is changed manually", rpm);
-                countDownLatch.await();
-            }
-            sleep(1000);
-        } catch (InterruptedException e) {
-            log.error("Interrupted exception occurred");
-            throw new RuntimeException(e);
-        }
+        logout(authResponse);
+        log.info("Generating telemetries for all devices with rpm={}", rpm);
+        createTelemetries(devices, rpm);
     }
 
     @PreDestroy
@@ -80,7 +56,7 @@ public class TelemetryGenerator extends AbstractGenerator {
     }
 
     @Override
-    String getLoadingUrl() {
+    String getLoadingUri() {
         return USERS_URL;
     }
 }

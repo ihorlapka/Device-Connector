@@ -1,5 +1,6 @@
 package com.iot.device_connector.controllers;
 
+import com.iot.device_connector.generator.AlertRulesGenerator;
 import com.iot.device_connector.generator.GenerateTelemetryRequest;
 import com.iot.device_connector.generator.TelemetryGenerator;
 import com.iot.device_connector.generator.UserTelemetriesGenerator;
@@ -13,35 +14,36 @@ import org.springframework.web.bind.annotation.*;
 public class GeneratorController {
 
     private final TelemetryGenerator generator;
-    private final UserTelemetriesGenerator userTelemetriesGenerator;
+    private final UserTelemetriesGenerator userGenerator;
+    private final AlertRulesGenerator rulesGenerator;
 
     @GetMapping("/rpm/{rpm}")
-    public ResponseEntity<String> generate(@PathVariable int rpm) {
+    public ResponseEntity<String> generateForAllUsers(@PathVariable int rpm) {
         generator.startWithRpm(rpm);
         return ResponseEntity.ok("Set creation of telemetries to " + rpm + " rpm");
     }
 
-    @PostMapping
-    public ResponseEntity<String> generateForUser(@RequestBody GenerateTelemetryRequest request) {
-        userTelemetriesGenerator.startForDevices(request.username(), request.deviceIds(), request.rpm());
-        return ResponseEntity.ok("Set creation of telemetries to " + request.rpm() + " rpm for user: " + request.username());
+    @GetMapping("/rpm/{rpm}")
+    public ResponseEntity<String> generateRules() {
+        rulesGenerator.generate();
+        return ResponseEntity.ok("Generating standard alert rules for all users' devices");
     }
 
-    @GetMapping("/username/{username}/rpm/{rpm}")
-    public ResponseEntity<String> changeRpmForUser(@PathVariable String username, @PathVariable int rpm) {
-        userTelemetriesGenerator.changeWithRpmForUser(username, rpm);
-        return ResponseEntity.ok("Set creation of telemetries to " + rpm + " rpm for user: " + username);
+    @PostMapping
+    public ResponseEntity<String> generateForSingleUser(@RequestBody GenerateTelemetryRequest request) {
+        userGenerator.startWithRpm(request.username(), request.deviceIds(), request.rpm());
+        return ResponseEntity.ok("Set creation of telemetries to " + request.rpm() + " rpm for user: " + request.username());
     }
 
     @GetMapping("/stop")
     public ResponseEntity<String> stop() {
-        generator.shutdown();
+        generator.stop();
         return ResponseEntity.ok("Stopping creation of telemetries...");
     }
 
     @GetMapping("/stopForUser")
     public ResponseEntity<String> stopForUser() {
-        userTelemetriesGenerator.shutdown();
+        userGenerator.stop();
         return ResponseEntity.ok("Stopping creation of telemetries for user...");
     }
 }

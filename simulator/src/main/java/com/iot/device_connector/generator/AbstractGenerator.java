@@ -5,6 +5,7 @@ import com.iot.device_connector.auth.AuthenticationResponse;
 import com.iot.device_connector.kafka.TelemetriesKafkaProducerRunner;
 import com.iot.device_connector.model.Device;
 import com.iot.device_connector.model.User;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecord;
@@ -41,22 +42,27 @@ public abstract class AbstractGenerator {
     private static final String PASSWORD = System.getenv("PASSWORD");
     static final String TOKEN_PREFIX = "Bearer ";
 
-    private final AtomicBoolean isShoutdown = new AtomicBoolean();
+    @Getter
+    private final AtomicBoolean isStarted = new AtomicBoolean(false);
 
     private final RestTemplate restTemplate;
     private final TelemetriesKafkaProducerRunner kafkaProducerRunner;
     private final TelemetryCreator telemetryCreator;
 
-    abstract String getLoadingUrl();
+    abstract String getLoadingUri();
 
-    public void shutdown() {
-        isShoutdown.set(true);
+    public void start() {
+        isStarted.set(true);
+    }
+
+    public void stop() {
+        isStarted.set(false);
     }
 
     <U> List<Device> loadDevices(AuthenticationResponse authResponse, String uriParam,
                                  ParameterizedTypeReference<U> responseType,
                                  Function<U, List<Device>> devicesFromUsersFunction) {
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + getLoadingUrl() + uriParam)
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + getLoadingUri() + uriParam)
                 .queryParam(SIZE, 40)
                 .queryParam(PAGE, 0);
 
@@ -105,10 +111,10 @@ public abstract class AbstractGenerator {
     }
 
     void createTelemetries(List<Device> devices, AtomicInteger rpm) {
-        while (!isShoutdown.get()) {
+        while (isStarted.get()) {
             try {
                 for (Device device : devices) {
-                    if (isShoutdown.get()) {
+                    if (!isStarted.get()) {
                         log.info("Stopped generating telemetries");
                         break;
                     }
@@ -122,6 +128,6 @@ public abstract class AbstractGenerator {
                 throw new RuntimeException(e);
             }
         }
-        log.info("Shutting down...");
+        log.info("Telemetries are stopped...");
     }
 }

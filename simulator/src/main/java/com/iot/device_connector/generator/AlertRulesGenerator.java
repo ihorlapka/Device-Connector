@@ -23,13 +23,14 @@ public class AlertRulesGenerator extends AbstractGenerator {
 
     public void generate() {
         final AuthenticationResponse authResponse = login();
-        final List<Device> devices = loadDevices(authResponse, "", new ParameterizedTypeReference<List<User>>() {}, getDevicesFromManyUsersFunction());
-        alertingRulesCreator.create(devices, authResponse);
+        final List<Device> devices = loadDevices(authResponse, "",
+                new ParameterizedTypeReference<List<User>>() {}, getDevicesFromManyUsersFunction());
         logout(authResponse);
+        alertingRulesCreator.create(devices, authResponse);
     }
 
     @Override
-    String getLoadingUrl() {
+    String getLoadingUri() {
         return USERS_URL;
     }
 }
