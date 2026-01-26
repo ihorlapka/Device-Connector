@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -22,24 +21,16 @@ public class UserTelemetriesGenerator extends AbstractGenerator {
     private static final String USERNAME_URL = "/iot-registry/api/v1/users/username";
 
     private final ConcurrentHashMap<String, AtomicInteger> rpmByUsername = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, CountDownLatch> latchByUsername = new ConcurrentHashMap<>();
 
-    public UserTelemetriesGenerator(RestTemplate restTemplate, TelemetriesKafkaProducerRunner kafkaProducerRunner,
-                                    TelemetryCreator telemetryCreator) {
+    public UserTelemetriesGenerator(RestTemplate restTemplate, TelemetriesKafkaProducerRunner kafkaProducerRunner, TelemetryCreator telemetryCreator) {
         super(restTemplate, kafkaProducerRunner, telemetryCreator);
     }
 
-    public void startWithRpmForUser(String username, int newRpm) {
+    public void changeWithRpmForUser(String username, int newRpm) {
         rpmByUsername.computeIfPresent(username, (k, v) -> {
             v.set(newRpm);
             return v;
         });
-        if (latchByUsername.get(username).getCount() == 1) {
-            log.info("Released latch for user: {}, set rpm to {}", username, newRpm);
-            latchByUsername.get(username).countDown();
-        } else {
-            log.info("Changed rpm={} for user: {}", username, latchByUsername.get(username).getCount());
-        }
     }
 
     public void startForDevices(@NonNull String username, @NonNull List<UUID> desiredDeviceIds, int rpm) {
@@ -54,9 +45,8 @@ public class UserTelemetriesGenerator extends AbstractGenerator {
         }
         final AtomicInteger userRpm = new AtomicInteger(rpm);
         rpmByUsername.put(username, userRpm);
-        latchByUsername.put(username, new CountDownLatch(1));
         log.info("Generating telemetries for user={}, with rpm={}, deviceIds={}", username, rpm, desiredDeviceIds);
-        createTelemetries(desiredDevices, latchByUsername.get(username), rpmByUsername.get(username));
+        createTelemetries(desiredDevices, rpmByUsername.get(username));
     }
 
     @Override

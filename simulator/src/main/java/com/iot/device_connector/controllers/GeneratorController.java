@@ -1,5 +1,6 @@
 package com.iot.device_connector.controllers;
 
+import com.iot.device_connector.generator.GenerateTelemetryRequest;
 import com.iot.device_connector.generator.TelemetryGenerator;
 import com.iot.device_connector.generator.UserTelemetriesGenerator;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +21,15 @@ public class GeneratorController {
         return ResponseEntity.ok("Set creation of telemetries to " + rpm + " rpm");
     }
 
+    @PostMapping("/username/{username}/rpm/{rpm}")
+    public ResponseEntity<String> generateForUser(@RequestBody GenerateTelemetryRequest request) {
+        userTelemetriesGenerator.startForDevices(request.username(), request.deviceIds(), request.rpm());
+        return ResponseEntity.ok("Set creation of telemetries to " + request.rpm() + " rpm for user: " + request.username());
+    }
+
     @GetMapping("/username/{username}/rpm/{rpm}")
-    public ResponseEntity<String> generateForUser(@PathVariable String username, @PathVariable int rpm) {
-        userTelemetriesGenerator.startWithRpmForUser(username, rpm);
+    public ResponseEntity<String> changeRpmForUser(@PathVariable String username, @PathVariable int rpm) {
+        userTelemetriesGenerator.changeWithRpmForUser(username, rpm);
         return ResponseEntity.ok("Set creation of telemetries to " + rpm + " rpm for user: " + username);
     }
 

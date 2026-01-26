@@ -17,7 +17,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -97,17 +96,7 @@ public abstract class AbstractGenerator {
         return new RequestEntity<>(headers, HttpMethod.GET, builder.build(Map.of()));
     }
 
-    void createTelemetries(List<Device> devices, CountDownLatch latch, AtomicInteger rpm) {
-        try {
-            if (latch.getCount() > 0) {
-                log.info("Current rpm={} waiting until it is changed manually", rpm);
-                latch.await();
-            }
-            sleep(1000);
-        } catch (InterruptedException e) {
-            log.error("Interrupted exception occurred");
-            throw new RuntimeException(e);
-        }
+    void createTelemetries(List<Device> devices, AtomicInteger rpm) {
         while (!isShoutdown.get()) {
             try {
                 for (Device device : devices) {

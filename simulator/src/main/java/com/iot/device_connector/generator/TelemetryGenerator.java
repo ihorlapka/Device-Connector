@@ -13,6 +13,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static java.lang.Thread.sleep;
+
 @Slf4j
 @Component
 public class TelemetryGenerator extends AbstractGenerator{
@@ -32,8 +34,8 @@ public class TelemetryGenerator extends AbstractGenerator{
         final List<Device> devices = loadDevices(authResponse, "");
         executorService.submit(() -> {
             try {
-                createTelemetries(devices, countDownLatch, rpm);
-//                alertingRulesCreator.create(devices, authResponse);
+                lockUntilTriggered();
+                createTelemetries(devices, rpm);
             } finally {
                 logout(authResponse);
             }
@@ -47,6 +49,19 @@ public class TelemetryGenerator extends AbstractGenerator{
             countDownLatch.countDown();
         } else {
             log.info("Changed rpm={}", countDownLatch.getCount());
+        }
+    }
+
+    private void lockUntilTriggered() {
+        try {
+            if (countDownLatch.getCount() > 0) {
+                log.info("Current rpm={} waiting until it is changed manually", rpm);
+                countDownLatch.await();
+            }
+            sleep(1000);
+        } catch (InterruptedException e) {
+            log.error("Interrupted exception occurred");
+            throw new RuntimeException(e);
         }
     }
 
