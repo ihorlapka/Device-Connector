@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import static java.lang.Thread.sleep;
 import static java.time.Instant.now;
@@ -52,27 +53,32 @@ public abstract class AbstractGenerator {
         isShoutdown.set(true);
     }
 
-    List<Device> loadDevices(AuthenticationResponse authResponse, String uriParam) {
+    <U> List<Device> loadDevices(AuthenticationResponse authResponse, String uriParam, Function<U, List<Device>> devicesFromUsersFunction) {
         final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + getLoadingUrl() + uriParam)
                 .queryParam(SIZE, 40)
                 .queryParam(PAGE, 0);
 
-        HttpEntity<?> requestEntity = buildHttpEntity(authResponse, builder);
-        final ResponseEntity<List<User>> response = restTemplate.exchange(
+        final HttpEntity<?> requestEntity = buildHttpEntity(authResponse, builder);
+        final ResponseEntity<U> response = restTemplate.exchange(
                 builder.toUriString(),
                 HttpMethod.GET,
                 requestEntity,
-                new ParameterizedTypeReference<>() {
-                }
+                new ParameterizedTypeReference<>() {}
         );
-        final List<User> users = response.getBody();
+        final U users = response.getBody();
         assert (users != null);
-        final List<Device> devices = users.stream()
-                .map(User::devices)
-                .flatMap(Collection::stream)
-                .toList();
-        log.info("Received {} users with {} devices", users.size(), devices.size());
-        return devices;
+        return devicesFromUsersFunction.apply(users);
+    }
+
+    Function<List<User>, List<Device>> getDevicesFromManyUsersFunction() {
+        return users ->  {
+            final List<Device> devices = users.stream()
+                    .map(User::devices)
+                    .flatMap(Collection::stream)
+                    .toList();
+            log.info("Received {} users with {} devices", users.size(), devices.size());
+            return devices;
+        };
     }
 
     AuthenticationResponse login() {

@@ -17,7 +17,7 @@ import static java.lang.Thread.sleep;
 
 @Slf4j
 @Component
-public class TelemetryGenerator extends AbstractGenerator{
+public class TelemetryGenerator extends AbstractGenerator {
 
     private final AtomicInteger rpm = new AtomicInteger();
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -31,7 +31,7 @@ public class TelemetryGenerator extends AbstractGenerator{
     @PostConstruct
     public void generate() {
         final AuthenticationResponse authResponse = login();
-        final List<Device> devices = loadDevices(authResponse, "");
+        final List<Device> devices = loadDevices(authResponse, "", getDevicesFromManyUsersFunction());
         executorService.submit(() -> {
             try {
                 lockUntilTriggered();

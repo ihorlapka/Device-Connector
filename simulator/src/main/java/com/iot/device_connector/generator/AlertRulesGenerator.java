@@ -11,6 +11,9 @@ import java.util.List;
 @Component
 public class AlertRulesGenerator extends AbstractGenerator {
 
+    private static final String SIZE = "size";
+    private static final String PAGE = "page";
+
     private final AlertingRulesCreator alertingRulesCreator;
 
     public AlertRulesGenerator(RestTemplate restTemplate, TelemetriesKafkaProducerRunner kafkaProducerRunner,
@@ -21,7 +24,7 @@ public class AlertRulesGenerator extends AbstractGenerator {
 
     public void generate() {
         final AuthenticationResponse authResponse = login();
-        final List<Device> devices = loadDevices(authResponse, "");
+        final List<Device> devices = loadDevices(authResponse, "", getDevicesFromManyUsersFunction());
         alertingRulesCreator.create(devices, authResponse);
         logout(authResponse);
     }
