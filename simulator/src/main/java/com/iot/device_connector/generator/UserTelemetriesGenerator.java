@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class UserTelemetriesGenerator extends AbstractGenerator {
 
-    private static final String USERNAME_URL = "/iot-registry/api/v1/users/username";
+    private static final String USERNAME_URL = "/iot-registry/api/v1/users/username/";
 
     private final ConcurrentHashMap<String, AtomicInteger> rpmByUsername = new ConcurrentHashMap<>();
 
