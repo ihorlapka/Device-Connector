@@ -3,9 +3,11 @@ package com.iot.device_connector.generator;
 import com.iot.device_connector.auth.AuthenticationResponse;
 import com.iot.device_connector.kafka.TelemetriesKafkaProducerRunner;
 import com.iot.device_connector.model.Device;
+import com.iot.device_connector.model.User;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -31,7 +33,8 @@ public class TelemetryGenerator extends AbstractGenerator {
     @PostConstruct
     public void generate() {
         final AuthenticationResponse authResponse = login();
-        final List<Device> devices = loadDevices(authResponse, "", getDevicesFromManyUsersFunction());
+        final List<Device> devices = loadDevices(authResponse, "",
+                new ParameterizedTypeReference<List<User>>() {}, getDevicesFromManyUsersFunction());
         executorService.submit(() -> {
             try {
                 lockUntilTriggered();

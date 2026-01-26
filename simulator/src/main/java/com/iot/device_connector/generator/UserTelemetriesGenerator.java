@@ -6,6 +6,7 @@ import com.iot.device_connector.model.Device;
 import com.iot.device_connector.model.User;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -37,7 +38,7 @@ public class UserTelemetriesGenerator extends AbstractGenerator {
 
     public void startForDevices(@NonNull String username, @NonNull List<UUID> desiredDeviceIds, int rpm) {
         final AuthenticationResponse authResponse = login();
-        final List<Device> allUserDevices = loadDevices(authResponse, username, getDevicesFromOneUserFunction());
+        final List<Device> allUserDevices = loadDevices(authResponse, username, new ParameterizedTypeReference<User>() {}, getDevicesFromOneUserFunction());
         logout(authResponse);
         final List<Device> desiredDevices = new ArrayList<>(desiredDeviceIds.size());
         for (Device device : allUserDevices) {

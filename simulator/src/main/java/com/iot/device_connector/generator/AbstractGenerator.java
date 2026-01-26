@@ -53,7 +53,9 @@ public abstract class AbstractGenerator {
         isShoutdown.set(true);
     }
 
-    <U> List<Device> loadDevices(AuthenticationResponse authResponse, String uriParam, Function<U, List<Device>> devicesFromUsersFunction) {
+    <U> List<Device> loadDevices(AuthenticationResponse authResponse, String uriParam,
+                                 ParameterizedTypeReference<U> responseType,
+                                 Function<U, List<Device>> devicesFromUsersFunction) {
         final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + getLoadingUrl() + uriParam)
                 .queryParam(SIZE, 40)
                 .queryParam(PAGE, 0);
@@ -63,7 +65,7 @@ public abstract class AbstractGenerator {
                 builder.toUriString(),
                 HttpMethod.GET,
                 requestEntity,
-                new ParameterizedTypeReference<>() {}
+                responseType
         );
         final U users = response.getBody();
         assert (users != null);
