@@ -31,7 +31,6 @@ public class CommandsController {
         log.info("Received: {}", commandRequest);
         if (registryClient.checkAccess(commandRequest, httpServletRequest)) {
             try {
-
                 final Command command = mapToAvro(commandRequest);
                 final Future<RecordMetadata> future = kafkaProducer.send(commandRequest.deviceId(), command);
                 final RecordMetadata metadata = future.get();
