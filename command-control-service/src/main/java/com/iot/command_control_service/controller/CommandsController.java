@@ -11,6 +11,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
@@ -20,6 +21,7 @@ import com.iot.devices.Command;
 
 @Slf4j
 @RestController
+@RequestMapping("/api/v1/commands")
 @RequiredArgsConstructor
 public class CommandsController {
 
