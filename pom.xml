@@ -38,6 +38,7 @@
 	<modules>
 		<module>avro-schemas</module>
 		<module>simulator</module>
+		<module>command-control-service</module>
 	</modules>
 
 </project>
