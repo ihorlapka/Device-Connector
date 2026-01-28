@@ -1,6 +1,5 @@
 package com.iot.command_control_service.controller;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.NonNull;
 
 import java.util.UUID;
@@ -10,6 +9,6 @@ public record CommandRequest(
         UUID deviceId,
         @NonNull
         UUID userId,
-        @NotBlank(message = "Payload mast not be blank")
+        @NonNull
         String payload) {
 }
