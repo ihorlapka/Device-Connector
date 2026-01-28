@@ -1,0 +1,30 @@
+{
+  "type": "record",
+  "name": "Command",
+  "namespace": "com.iot.devices",
+  "fields": [
+    {
+      "name": "commandId",
+      "type": "string"
+    },
+    {
+      "name": "deviceId",
+      "type": "string"
+    },
+    {
+      "name": "userId",
+      "type": "string"
+    },
+    {
+      "name": "payload",
+      "type": "string"
+    },
+    {
+      "name": "createdAt",
+      "type": {
+        "type": "long",
+        "logicalType": "timestamp-millis"
+      }
+    }
+  ]
+}

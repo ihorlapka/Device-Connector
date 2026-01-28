@@ -1,6 +1,6 @@
 package com.iot.command_control_service.kafka;
 
-import com.iot.command_control_service.controller.CommandEvent;
+import com.iot.devices.Command;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.binder.kafka.KafkaClientMetrics;
 import jakarta.annotation.PreDestroy;
@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
 public class KafkaProducerRunner {
 
     private final KafkaProducerProperties kafkaProducerProperties;
-    private final KafkaProducer<String, CommandEvent> kafkaProducer;
+    private final KafkaProducer<String, Command> kafkaProducer;
     private final KafkaClientMetrics kafkaClientMetrics;
 
 
@@ -33,13 +33,13 @@ public class KafkaProducerRunner {
         this.kafkaClientMetrics.bindTo(meterRegistry);
     }
 
-    public Future<RecordMetadata> send(UUID deviceId, CommandEvent event) {
+    public Future<RecordMetadata> send(UUID deviceId, Command event) {
         log.info("Sending to topic={}, deviceId={}, message={}", kafkaProducerProperties.getTopic(), deviceId, event);
-        final ProducerRecord<String, CommandEvent> record = new ProducerRecord<>(kafkaProducerProperties.getTopic(), deviceId.toString(), event);
+        final ProducerRecord<String, Command> record = new ProducerRecord<>(kafkaProducerProperties.getTopic(), deviceId.toString(), event);
         return kafkaProducer.send(record, getCallback(event));
     }
 
-    private Callback getCallback(CommandEvent message) {
+    private Callback getCallback(Command message) {
         return (metadata, exception) -> {
             if (exception != null) {
                 log.error("Failed to send record to topic={}, message={}, error={}",

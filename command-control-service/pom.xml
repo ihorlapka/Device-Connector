@@ -20,6 +20,17 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>confluent</id>
+			<url>https://packages.confluent.io/maven/</url>
+		</repository>
+		<repository>
+			<id>github-device-connector</id>
+			<url>https://maven.pkg.github.com/ihorlapka/Device-Connector</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -73,6 +84,16 @@
 			<groupId>jakarta.validation</groupId>
 			<artifactId>jakarta.validation-api</artifactId>
 			<version>3.1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>io.confluent</groupId>
+			<artifactId>kafka-avro-serializer</artifactId>
+			<version>7.9.2</version>
+		</dependency>
+		<dependency>
+			<groupId>com.iot.devices.avro.schemas</groupId>
+			<artifactId>avro-schemas</artifactId>
+			<version>1.0.3-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 

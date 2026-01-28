@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.Future;
+import com.iot.devices.Command;
 
 @Slf4j
 @RestController
@@ -30,11 +31,12 @@ public class CommandsController {
         log.info("Received: {}", commandRequest);
         if (registryClient.checkAccess(commandRequest, httpServletRequest)) {
             try {
-                final CommandEvent commandEvent = mapToEvent(commandRequest);
-                final Future<RecordMetadata> future = kafkaProducer.send(commandRequest.deviceId(), commandEvent);
+
+                final Command command = mapToAvro(commandRequest);
+                final Future<RecordMetadata> future = kafkaProducer.send(commandRequest.deviceId(), command);
                 final RecordMetadata metadata = future.get();
-                log.info("Command {} is successfully sent, offset={}", commandEvent, metadata.offset());
-                return ResponseEntity.ok().body(mapToDto(commandEvent));
+                log.info("Command {} is successfully sent, offset={}", command, metadata.offset());
+                return ResponseEntity.ok().body(mapToDto(command));
             } catch (Exception e) {
                 throw new CommandNotSentException(commandRequest.deviceId(), commandRequest.userId(), e);
             }
@@ -43,13 +45,13 @@ public class CommandsController {
         }
     }
 
-    private CommandEvent mapToEvent(CommandRequest request) {
-        return new CommandEvent(UUID.randomUUID(), request.deviceId(),
-                request.userId(), request.payload(), Instant.now());
+    private Command mapToAvro(CommandRequest request) {
+        return new Command(UUID.randomUUID().toString(), request.deviceId().toString(),
+                request.userId().toString(), request.payload(), Instant.now());
     }
 
-    private static CommandDto mapToDto(CommandEvent commandEvent) {
-        return new CommandDto(commandEvent.commandId(), commandEvent.deviceId(),
-                commandEvent.userId(), commandEvent.payload(), commandEvent.createdAt());
+    private static CommandDto mapToDto(Command command) {
+        return new CommandDto(command.getCommandId(), command.getDeviceId(),
+                command.getUserId(), command.getPayload(), command.getCreatedAt());
     }
 }
