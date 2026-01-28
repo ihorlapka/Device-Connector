@@ -61,7 +61,7 @@ jobs:
           path: Kubernetes-Manifests
       - name: Update image tag in kustomization.yaml
         run: |
-          cd Kubernetes-Manifests/iot-command-control-service
+          cd Kubernetes-Manifests/iot-command-control-service/overlays/dev
           kustomize edit set image ${{ secrets.DOCKER_USERNAME }}/iot-command-control-service:${{ github.run_number }}
       - name: Commit and push manifest changes
         run: |
