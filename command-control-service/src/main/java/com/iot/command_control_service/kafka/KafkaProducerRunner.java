@@ -9,6 +9,7 @@ import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.UUID;
 import java.util.concurrent.Future;
 
 @Slf4j
+@Component
 public class KafkaProducerRunner {
 
     private final KafkaProducerProperties kafkaProducerProperties;
