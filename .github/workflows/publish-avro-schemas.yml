@@ -23,6 +23,6 @@ jobs:
           distribution: 'temurin'
           settings-path: ${{ github.workspace }}
       - name: Publish avro-schemas
-        run: mvn -pl avro-schemas -am package -s $GITHUB_WORKSPACE/settings.xml
+        run: mvn -pl avro-schemas -am deploy -s $GITHUB_WORKSPACE/settings.xml
         env:
           GITHUB_TOKEN: ${{ github.token }}
