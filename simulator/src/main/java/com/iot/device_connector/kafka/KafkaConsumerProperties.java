@@ -24,7 +24,7 @@ public class KafkaConsumerProperties {
 
     final static String PROPERTIES_PREFIX = "kafka.consumer";
 
-    private Map<String, Object> properties = new HashMap<>();
+    private Map<String, String> properties = new HashMap<>();
 
     @Value("${" + PROPERTIES_PREFIX + ".dead-letter-topic}")
     private String deadLetterTopic;

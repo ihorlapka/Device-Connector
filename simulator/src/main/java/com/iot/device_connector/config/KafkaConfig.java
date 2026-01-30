@@ -16,6 +16,9 @@ import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @EnableKafka
 @Configuration
@@ -46,6 +49,8 @@ public class KafkaConfig {
 
     @Bean
     public ConsumerFactory<String, Command> consumerFactory(KafkaConsumerProperties props) {
-        return new DefaultKafkaConsumerFactory<>(props.getProperties());
+        Map<String, Object> properties = new HashMap<>(props.getProperties().size());
+        properties.putAll(props.getProperties());
+        return new DefaultKafkaConsumerFactory<>(properties);
     }
 }
