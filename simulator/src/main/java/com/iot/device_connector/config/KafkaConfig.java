@@ -1,8 +1,8 @@
 package com.iot.device_connector.config;
 
 import com.iot.device_connector.kafka.KafkaConsumerProperties;
-import com.iot.devices.Command;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,10 +25,10 @@ import java.util.Map;
 public class KafkaConfig {
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, Command> kafkaListenerContainerFactory(ConsumerFactory<String, Command> consumerFactory,
-                                                                                                  DeadLetterPublishingRecoverer deadLetterPublishingRecoverer,
-                                                                                                  KafkaConsumerProperties props) {
-        ConcurrentKafkaListenerContainerFactory<String, Command> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, SpecificRecord> kafkaListenerContainerFactory(ConsumerFactory<String, SpecificRecord> consumerFactory,
+                                                                                                         DeadLetterPublishingRecoverer deadLetterPublishingRecoverer,
+                                                                                                         KafkaConsumerProperties props) {
+        ConcurrentKafkaListenerContainerFactory<String, SpecificRecord> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(1);
         factory.setCommonErrorHandler(new DefaultErrorHandler(deadLetterPublishingRecoverer, new FixedBackOff(props.getRetryIntervalMs(), props.getRetries())));
@@ -38,7 +38,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public DeadLetterPublishingRecoverer recoverer(KafkaTemplate<String, Command> template,
+    public DeadLetterPublishingRecoverer recoverer(KafkaTemplate<String, SpecificRecord> template,
                                                    KafkaConsumerProperties props) {
         return new DeadLetterPublishingRecoverer(template,
                 (record, exception) -> {
@@ -48,7 +48,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, Command> consumerFactory(KafkaConsumerProperties props) {
+    public ConsumerFactory<String, SpecificRecord> consumerFactory(KafkaConsumerProperties props) {
         Map<String, Object> properties = new HashMap<>(props.getProperties().size());
         properties.putAll(props.getProperties());
         return new DefaultKafkaConsumerFactory<>(properties);

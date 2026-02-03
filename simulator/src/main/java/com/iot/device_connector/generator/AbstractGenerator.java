@@ -124,7 +124,7 @@ public abstract class AbstractGenerator {
                     kafkaProducerRunner.sendMessage(device.id().toString(), record);
                     sleep(timeout);
                 }
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }

@@ -6,10 +6,12 @@ import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.Properties;
+import java.util.concurrent.Future;
 
 @Slf4j
 @Component
@@ -26,21 +28,22 @@ public class TelemetriesKafkaProducerRunner {
         this.producerProperties = producerProperties;
     }
 
-    public void sendMessage(String key, SpecificRecord record) {
+    public Future<RecordMetadata> sendMessage(String key, SpecificRecord record) {
         try {
             final ProducerRecord<String, SpecificRecord> producerRecord = new ProducerRecord<>(producerProperties.getTopic(), key, record);
-            kafkaProducer.send(producerRecord, getCallback(record));
+            return kafkaProducer.send(producerRecord, getCallback(record));
         } catch (Exception e) {
             log.error("Failed to send message: {}", record, e);
+            throw new RuntimeException(e);
         }
     }
 
     private Callback getCallback(SpecificRecord telemetry) {
         return (metadata, exception) -> {
             if (exception != null) {
-                log.error("Failed to send telemetry to Kafka dead-letter topic: telemetry={}, error={}", telemetry, exception.getMessage(), exception);
+                log.error("Failed to send telemetry to topic={}, telemetry={}, error={}", metadata.topic(), telemetry, exception.getMessage(), exception);
             } else {
-                log.debug("Successfully sent telemetry to dead-letter topic: topic={}, partition={}, offset={}",
+                log.debug("Successfully sent telemetry to topic={}, partition={}, offset={}",
                         metadata.topic(), metadata.partition(), metadata.offset());
             }
         };

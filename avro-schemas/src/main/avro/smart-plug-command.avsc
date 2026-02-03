@@ -1,7 +1,7 @@
 {
   "type": "record",
-  "name": "Command",
-  "namespace": "com.iot.devices",
+  "name": "SmartPlugCommand",
+  "namespace": "com.iot.commands",
   "fields": [
     {
       "name": "commandId",
@@ -12,12 +12,12 @@
       "type": "string"
     },
     {
-      "name": "userId",
-      "type": "string"
-    },
-    {
-      "name": "payload",
-      "type": "string"
+      "name": "isOn",
+      "type": [
+        "null",
+        "boolean"
+      ],
+      "default": null
     },
     {
       "name": "createdAt",
