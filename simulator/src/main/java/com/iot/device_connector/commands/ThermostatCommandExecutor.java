@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
+import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -50,12 +51,15 @@ public class ThermostatCommandExecutor extends AbstractCommandExecutor<Thermosta
                 try {
                     log.info("New command cancelled current executing one {}, device state: {}", command, device);
                     Future<RecordMetadata> future = sendMessage(device.getDeviceId(), device);
-                    future.get();
+                    future.get(1, TimeUnit.SECONDS);
                     log.info("Sent after command execution was cancelled: {}", device);
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
+                } finally {
+                    Thread.currentThread().interrupt();
                 }
             } catch (Exception e) {
+                log.error("Unexpected exception during command execution, {} {}", command, device);
                 throw new RuntimeException(e);
             }
         }
@@ -63,7 +67,7 @@ public class ThermostatCommandExecutor extends AbstractCommandExecutor<Thermosta
     }
 
     @Override
-    boolean verifyIfShouldCancel(ThermostatCommand command, ThermostatCommand c) {
-        return false; //todo: add verification!
+    boolean verifyIfShouldCancel(ThermostatCommand oldCommand, ThermostatCommand newCommand) {
+        return !Objects.equals(newCommand.getTargetTemperature(), oldCommand.getTargetTemperature());
     }
 }

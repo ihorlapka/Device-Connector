@@ -1,28 +1,30 @@
 package com.iot.device_connector.commands;
 
+import com.google.common.cache.*;
 import com.iot.device_connector.kafka.TelemetriesKafkaProducerRunner;
+import jakarta.annotation.Nullable;
 import jakarta.annotation.PreDestroy;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class AbstractCommandExecutor<C, D extends SpecificRecord> {
+public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extends SpecificRecord> {
 
     private static final int COMMANDS_CAPACITY = 100;
 
     private final TelemetriesKafkaProducerRunner kafkaProducerRunner;
 
     private final ConcurrentHashMap<String, D> deviceByDeviceId = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, ExecutorService> executorServiceByDeviceId = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, BlockingQueue<CommandWithExecution>> futureExecutionsByDeviceId = new ConcurrentHashMap<>();
+    private final Cache<String, ExecutorService> executorsCache = buildExecutorsByDeviceIdCache();
 
 
     abstract D applyCommand(C command, D device);
@@ -35,27 +37,47 @@ public abstract class AbstractCommandExecutor<C, D extends SpecificRecord> {
     public void submitCommand(C command, Function<C, String> deviceIdFunction) {
         final String deviceId = deviceIdFunction.apply(command);
         final D device = deviceByDeviceId.get(deviceId);
-        executorServiceByDeviceId.computeIfAbsent(deviceId, (k) -> Executors.newSingleThreadExecutor(Thread.ofVirtual().name("device-" + k).factory()));
 
-        final BlockingQueue<CommandWithExecution> futureExecutions = futureExecutionsByDeviceId.computeIfAbsent(deviceId, (k) -> new LinkedBlockingQueue<>(COMMANDS_CAPACITY));
+        final BlockingQueue<CommandWithExecution> futureExecutions = futureExecutionsByDeviceId
+                .computeIfAbsent(deviceId, (k) -> new LinkedBlockingQueue<>(COMMANDS_CAPACITY));
         checkIfShouldCancelAnyRunningCommands(command, futureExecutions);
 
-        final Future<D> futureExecution = executorServiceByDeviceId.get(deviceId).submit(executeWithRemoval(command, device, futureExecutions));
-        if (!futureExecution.isDone()) {
-            boolean isAdded = futureExecutions.offer(CommandWithExecution.of(command, futureExecution));
-            if (!isAdded) {
-                futureExecution.cancel(true);
-                throw new RuntimeException("Too many commands are executing now!");
-            } else {
+        final CommandWithExecution commandWithExecution = CommandWithExecution.of(command);
+        if (futureExecutions.offer(commandWithExecution)) {
+            try {
+                final Future<D> futureExecution = executorsCache.get(deviceId, () -> getVirtualExecutorService(deviceId))
+                        .submit(executeWithRemoval(command, device, futureExecutions));
+                commandWithExecution.setFutureExecution(futureExecution);
                 log.info("Submitted new command for execution: {}", command);
+            } catch (ExecutionException e) {
+                log.error("Failed to get executor for deviceId {}", deviceId, e);
+                throw new RuntimeException(e);
+            } catch (Exception e) {
+                if (futureExecutions.remove(commandWithExecution)) {
+                    log.warn("Removed {} due to exception", commandWithExecution, e);
+                }
+                throw e;
             }
+        } else {
+            throw new RuntimeException("Too many commands are executing now!");
         }
     }
 
+    private ExecutorService getVirtualExecutorService(String deviceId) {
+        return Executors.newSingleThreadExecutor(Thread.ofVirtual().name("device-" + deviceId).factory());
+    }
+
     private void checkIfShouldCancelAnyRunningCommands(C newCommand, BlockingQueue<CommandWithExecution> futureExecutions) {
-        for (CommandWithExecution commandWithExecution : futureExecutions) {
+        final Iterator<CommandWithExecution> iterator = futureExecutions.iterator();
+        while (iterator.hasNext()) {
+            final CommandWithExecution commandWithExecution = iterator.next();
             if (verifyIfShouldCancel(commandWithExecution.getCommand(), newCommand)) {
-                commandWithExecution.getFutureExecution().cancel(true);
+                final Future<D> futureExecution = commandWithExecution.getFutureExecution();
+                if (futureExecution != null) {
+                    futureExecution.cancel(true);
+                }
+                iterator.remove();
+                log.info("Cancelled and removed command from queue: {}", commandWithExecution.getCommand());
             }
         }
     }
@@ -70,22 +92,48 @@ public abstract class AbstractCommandExecutor<C, D extends SpecificRecord> {
         };
     }
 
-    @Value(staticConstructor = "of")
+    private Cache<String, ExecutorService> buildExecutorsByDeviceIdCache() {
+        return CacheBuilder.newBuilder()
+                .expireAfterAccess(10, TimeUnit.MINUTES)
+                .removalListener((RemovalNotification<String, ExecutorService> notification) -> {
+                    final ExecutorService executor = notification.getValue();
+                    if (executor != null) {
+                        log.info("Closing executor for device: {} due to {}", notification.getKey(), notification.getCause());
+                        executor.shutdown();
+                        try {
+                            if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                                executor.shutdownNow();
+                            }
+                        } catch (InterruptedException e) {
+                            executor.shutdownNow();
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                })
+                .build();
+    }
+
+    @Getter
+    @ToString
+    @EqualsAndHashCode(of = "command")
+    @RequiredArgsConstructor(staticName = "of")
     class CommandWithExecution {
-        C command;
-        Future<D> futureExecution;
+        @NonNull
+        private final C command;
+        @Setter
+        @Nullable
+        private Future<D> futureExecution;
     }
 
     @PreDestroy
     private void closeExecutors() throws InterruptedException {
         log.info("Shutting down executors...");
-        for (Map.Entry<String, ExecutorService> entry : executorServiceByDeviceId.entrySet()) {
-            String k = entry.getKey();
-            ExecutorService v = entry.getValue();
-            v.shutdown();
-            boolean isShoutdown = v.awaitTermination(5, TimeUnit.SECONDS);
+        for (Map.Entry<String, ExecutorService> entry : executorsCache.asMap().entrySet()) {
+            final ExecutorService executorService = entry.getValue();
+            executorService.shutdown();
+            boolean isShoutdown = executorService.awaitTermination(5, TimeUnit.SECONDS);
             if (!isShoutdown) {
-                v.shutdownNow();
+                executorService.shutdownNow();
             }
         }
         log.info("All executors were shut down");

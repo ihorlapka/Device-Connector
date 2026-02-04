@@ -22,5 +22,6 @@ public record Device(UUID id,
                      OffsetDateTime lastActiveAt,
                      String firmwareVersion,
                      OffsetDateTime createdAt,
-                     OffsetDateTime updatedAt) {
+                     OffsetDateTime updatedAt,
+                     String telemetry) {
 }
