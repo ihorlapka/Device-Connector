@@ -1,6 +1,7 @@
 package com.iot.device_connector.generator;
 
 import com.iot.device_connector.auth.AuthenticationResponse;
+import com.iot.device_connector.auth.RegistryAuthenticator;
 import com.iot.device_connector.kafka.TelemetriesKafkaProducerRunner;
 import com.iot.device_connector.model.Device;
 import com.iot.device_connector.model.User;
@@ -29,8 +30,9 @@ public class UserTelemetriesGenerator extends AbstractGenerator {
     private final AtomicInteger rpm = new AtomicInteger();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public UserTelemetriesGenerator(RestTemplate restTemplate, TelemetriesKafkaProducerRunner kafkaProducerRunner, TelemetryCreator telemetryCreator) {
-        super(restTemplate, kafkaProducerRunner, telemetryCreator);
+    public UserTelemetriesGenerator(RestTemplate restTemplate, TelemetriesKafkaProducerRunner kafkaProducerRunner,
+                                    TelemetryCreator telemetryCreator, RegistryAuthenticator authenticator) {
+        super(restTemplate, kafkaProducerRunner, telemetryCreator, authenticator);
     }
 
     public void startWithRpm(@NonNull String username, @NonNull List<UUID> desiredDeviceIds, int newRpm) {

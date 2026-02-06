@@ -1,7 +1,10 @@
 package com.iot.device_connector.commands;
 
 import com.google.common.cache.*;
+import com.iot.device_connector.devices.DevicesProvider;
+import com.iot.device_connector.devices.dto.DeviceDto;
 import com.iot.device_connector.kafka.TelemetriesKafkaProducerRunner;
+import com.iot.device_connector.model.enums.DeviceType;
 import jakarta.annotation.Nullable;
 import jakarta.annotation.PreDestroy;
 import lombok.*;
@@ -16,50 +19,64 @@ import java.util.function.Function;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extends SpecificRecord> {
+public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extends SpecificRecord, T extends DeviceDto> {
 
     private static final int COMMANDS_CAPACITY = 100;
 
+    private final DevicesProvider devicesProvider;
     private final TelemetriesKafkaProducerRunner kafkaProducerRunner;
 
-    private final ConcurrentHashMap<String, D> deviceByDeviceId = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, BlockingQueue<CommandWithExecution>> futureExecutionsByDeviceId = new ConcurrentHashMap<>();
     private final Cache<String, ExecutorService> executorsCache = buildExecutorsByDeviceIdCache();
 
 
     abstract D applyCommand(C command, D device);
     abstract boolean verifyIfShouldCancel(C oldCommand, C newCommand);
+    abstract DeviceType getDeviceType();
+    abstract D mapDeviceFromDtoToAvro(T device);
+    abstract T mapDeviceFromAvroToDto(D device);
+    abstract Class<T> getClazz();
 
     Future<RecordMetadata> sendMessage(String deviceId, D device) {
         return kafkaProducerRunner.sendMessage(deviceId, device);
     }
 
+    void updateDevicesCache(D device) {
+        devicesProvider.updateDevice(mapDeviceFromAvroToDto(device));
+    }
+
     public void submitCommand(C command, Function<C, String> deviceIdFunction) {
-        final String deviceId = deviceIdFunction.apply(command);
-        final D device = deviceByDeviceId.get(deviceId);
+        try {
+            final String deviceId = deviceIdFunction.apply(command);
+            final D device = devicesProvider.getDevice(getDeviceType(), deviceId, getClazz())
+                    .map(this::mapDeviceFromDtoToAvro)
+                    .orElseThrow(() -> new RuntimeException("No device present!"));
 
-        final BlockingQueue<CommandWithExecution> futureExecutions = futureExecutionsByDeviceId
-                .computeIfAbsent(deviceId, (k) -> new LinkedBlockingQueue<>(COMMANDS_CAPACITY));
-        checkIfShouldCancelAnyRunningCommands(command, futureExecutions);
+            final BlockingQueue<CommandWithExecution> futureExecutions = futureExecutionsByDeviceId
+                    .computeIfAbsent(deviceId, (k) -> new LinkedBlockingQueue<>(COMMANDS_CAPACITY));
+            checkIfShouldCancelAnyRunningCommands(command, futureExecutions);
 
-        final CommandWithExecution commandWithExecution = CommandWithExecution.of(command);
-        if (futureExecutions.offer(commandWithExecution)) {
-            try {
-                final Future<D> futureExecution = executorsCache.get(deviceId, () -> getVirtualExecutorService(deviceId))
-                        .submit(executeWithRemoval(command, device, futureExecutions));
-                commandWithExecution.setFutureExecution(futureExecution);
-                log.info("Submitted new command for execution: {}", command);
-            } catch (ExecutionException e) {
-                log.error("Failed to get executor for deviceId {}", deviceId, e);
-                throw new RuntimeException(e);
-            } catch (Exception e) {
-                if (futureExecutions.remove(commandWithExecution)) {
-                    log.warn("Removed {} due to exception", commandWithExecution, e);
+            final CommandWithExecution commandWithExecution = CommandWithExecution.of(command);
+            if (futureExecutions.offer(commandWithExecution)) {
+                try {
+                    final Future<D> futureExecution = executorsCache.get(deviceId, () -> getVirtualExecutorService(deviceId))
+                            .submit(executeWithRemoval(command, device, futureExecutions));
+                    commandWithExecution.setFutureExecution(futureExecution);
+                    log.info("Submitted new command for execution: {}", command);
+                } catch (ExecutionException e) {
+                    log.error("Failed to get executor for deviceId {}", deviceId, e);
+                    throw new RuntimeException(e);
+                } catch (Exception e) {
+                    if (futureExecutions.remove(commandWithExecution)) {
+                        log.warn("Removed {} due to exception", commandWithExecution, e);
+                    }
+                    throw e;
                 }
-                throw e;
+            } else {
+                throw new RuntimeException("Too many commands are executing now!");
             }
-        } else {
-            throw new RuntimeException("Too many commands are executing now!");
+        } catch (Exception e) {
+            log.error("Unexpected exception occurred during command execution!");
         }
     }
 

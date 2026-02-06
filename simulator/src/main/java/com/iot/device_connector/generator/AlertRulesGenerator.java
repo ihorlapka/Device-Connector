@@ -1,6 +1,7 @@
 package com.iot.device_connector.generator;
 
 import com.iot.device_connector.auth.AuthenticationResponse;
+import com.iot.device_connector.auth.RegistryAuthenticator;
 import com.iot.device_connector.kafka.TelemetriesKafkaProducerRunner;
 import com.iot.device_connector.model.Device;
 import com.iot.device_connector.model.User;
@@ -16,8 +17,9 @@ public class AlertRulesGenerator extends AbstractGenerator {
     private final AlertingRulesCreator alertingRulesCreator;
 
     public AlertRulesGenerator(RestTemplate restTemplate, TelemetriesKafkaProducerRunner kafkaProducerRunner,
-                               TelemetryCreator telemetryCreator, AlertingRulesCreator alertingRulesCreator) {
-        super(restTemplate, kafkaProducerRunner, telemetryCreator);
+                               TelemetryCreator telemetryCreator, AlertingRulesCreator alertingRulesCreator,
+                               RegistryAuthenticator authenticator) {
+        super(restTemplate, kafkaProducerRunner, telemetryCreator, authenticator);
         this.alertingRulesCreator = alertingRulesCreator;
     }
 

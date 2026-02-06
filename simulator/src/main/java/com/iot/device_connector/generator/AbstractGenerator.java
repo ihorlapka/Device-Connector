@@ -1,7 +1,7 @@
 package com.iot.device_connector.generator;
 
-import com.iot.device_connector.auth.AuthenticationRequest;
 import com.iot.device_connector.auth.AuthenticationResponse;
+import com.iot.device_connector.auth.RegistryAuthenticator;
 import com.iot.device_connector.kafka.TelemetriesKafkaProducerRunner;
 import com.iot.device_connector.model.Device;
 import com.iot.device_connector.model.User;
@@ -33,14 +33,10 @@ public abstract class AbstractGenerator {
 
     public static final String USERS_URL = "/iot-registry/api/v1/users/all";
     public static final String REGISTRY_BASE_URL = System.getenv("REGISTRY_BASE_URL");
-    private static final String LOGIN_URL = "/iot-registry/api/v1/authentication/login";
-    private static final String LOGOUT_URL = "/iot-registry/api/v1/authentication/logout";
+    public static final String TOKEN_PREFIX = "Bearer ";
     private static final String SIZE = "size";
     private static final String PAGE = "page";
     private static final int ONE_MINUTE_MS = 60_000;
-    private static final String USERNAME = System.getenv("USERNAME");
-    private static final String PASSWORD = System.getenv("PASSWORD");
-    static final String TOKEN_PREFIX = "Bearer ";
 
     @Getter
     private final AtomicBoolean isStarted = new AtomicBoolean(false);
@@ -48,6 +44,7 @@ public abstract class AbstractGenerator {
     private final RestTemplate restTemplate;
     private final TelemetriesKafkaProducerRunner kafkaProducerRunner;
     private final TelemetryCreator telemetryCreator;
+    private final RegistryAuthenticator authenticator;
 
     abstract String getLoadingUri();
 
@@ -90,18 +87,11 @@ public abstract class AbstractGenerator {
     }
 
     AuthenticationResponse login() {
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + LOGIN_URL);
-        final AuthenticationRequest request = new AuthenticationRequest(USERNAME, PASSWORD);
-        ResponseEntity<AuthenticationResponse> authResponse = restTemplate.postForEntity(builder.toUriString(), request, AuthenticationResponse.class, Map.of());
-        log.info("Simulator app is logged in!");
-        return authResponse.getBody();
+        return authenticator.login();
     }
 
     void logout(AuthenticationResponse authResponse) {
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + LOGOUT_URL);
-        HttpEntity<?> httpEntity = buildHttpEntity(authResponse, builder);
-        restTemplate.postForEntity(builder.toUriString(), httpEntity, Void.class, Map.of());
-        log.info("Simulator app is logged out!");
+        authenticator.logout(authResponse);
     }
 
     private HttpEntity<?> buildHttpEntity(AuthenticationResponse authResponse, UriComponentsBuilder builder) {

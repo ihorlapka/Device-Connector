@@ -18,9 +18,9 @@ public class CommandsScheduler {
 
     public void scheduleExecution(SpecificRecord commandRecord) {
         switch (commandRecord) {
-            case SmartLightCommand command -> smartLightCommandExecutor.scheduleExecution(command, SmartLightCommand::getDeviceId);
-            case SmartPlugCommand command -> smartPlugCommandExecutor.scheduleExecution(command, SmartPlugCommand::getDeviceId);
-            case ThermostatCommand command -> thermostatCommandExecutor.scheduleExecution(command, ThermostatCommand::getDeviceId);
+            case SmartLightCommand command -> smartLightCommandExecutor.submitCommand(command, SmartLightCommand::getDeviceId);
+            case SmartPlugCommand command -> smartPlugCommandExecutor.submitCommand(command, SmartPlugCommand::getDeviceId);
+            case ThermostatCommand command -> thermostatCommandExecutor.submitCommand(command, ThermostatCommand::getDeviceId);
             default -> throw new IllegalStateException("Not implemented: " + commandRecord);
         }
     }

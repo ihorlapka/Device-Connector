@@ -1,8 +1,13 @@
 package com.iot.device_connector.commands;
 
 import com.iot.commands.ThermostatCommand;
+import com.iot.device_connector.devices.DevicesProvider;
+import com.iot.device_connector.devices.dto.ThermostatDto;
 import com.iot.device_connector.kafka.TelemetriesKafkaProducerRunner;
+import com.iot.device_connector.model.enums.DeviceType;
+import com.iot.devices.DeviceStatus;
 import com.iot.devices.Thermostat;
+import com.iot.devices.ThermostatMode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.stereotype.Component;
@@ -14,18 +19,19 @@ import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import static com.iot.device_connector.model.enums.DeviceType.THERMOSTAT;
 import static java.lang.Thread.sleep;
 import static java.util.Optional.ofNullable;
 
 @Slf4j
 @Component
-public class ThermostatCommandExecutor extends AbstractCommandExecutor<ThermostatCommand, Thermostat> {
+public class ThermostatCommandExecutor extends AbstractCommandExecutor<ThermostatCommand, Thermostat, ThermostatDto> {
 
     private static final long TIME_PERIOD = 1; //seconds
     private static final BigDecimal STEP = new BigDecimal("0.1");
 
-    public ThermostatCommandExecutor(TelemetriesKafkaProducerRunner kafkaProducerRunner) {
-        super(kafkaProducerRunner);
+    public ThermostatCommandExecutor(DevicesProvider devicesProvider, TelemetriesKafkaProducerRunner kafkaProducerRunner) {
+        super(devicesProvider, kafkaProducerRunner);
     }
 
     @Override
@@ -44,6 +50,7 @@ public class ThermostatCommandExecutor extends AbstractCommandExecutor<Thermosta
                 device.setCurrentTemperature(current.floatValue());
                 Future<RecordMetadata> future = sendMessage(device.getDeviceId(), device);
                 RecordMetadata metadata = future.get(1, TimeUnit.SECONDS);
+                updateDevicesCache(device);
                 log.info("Sent during command execution: {}, offset={}", device, metadata.offset());
                 sleep(Duration.ofSeconds(TIME_PERIOD));
                 current = target.compareTo(current) > 0 ? current.add(STEP) : current.subtract(STEP);
@@ -69,5 +76,36 @@ public class ThermostatCommandExecutor extends AbstractCommandExecutor<Thermosta
     @Override
     boolean verifyIfShouldCancel(ThermostatCommand oldCommand, ThermostatCommand newCommand) {
         return !Objects.equals(newCommand.getTargetTemperature(), oldCommand.getTargetTemperature());
+    }
+
+    @Override
+    DeviceType getDeviceType() {
+        return THERMOSTAT;
+    }
+
+    @Override
+    Thermostat mapDeviceFromDtoToAvro(ThermostatDto device) {
+        return Thermostat.newBuilder()
+                .setDeviceId(device.deviceId().toString())
+                .setCurrentTemperature(device.getCurrentTemperature())
+                .setTargetTemperature(device.getTargetTemperature())
+                .setHumidity(device.getHumidity())
+                .setMode(ofNullable(device.mode())
+                        .map(mode -> ThermostatMode.valueOf(mode.name()))
+                        .orElse(null))
+                .setStatus(DeviceStatus.valueOf(device.getStatus().name()))
+                .setFirmwareVersion(device.firmwareVersion())
+                .setLastUpdated(device.getLastUpdated())
+                .build();
+    }
+
+    @Override
+    ThermostatDto mapDeviceFromAvroToDto(Thermostat device) {
+        return null;
+    }
+
+    @Override
+    Class<ThermostatDto> getClazz() {
+        return ThermostatDto.class;
     }
 }
