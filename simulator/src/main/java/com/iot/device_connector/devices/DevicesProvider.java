@@ -31,9 +31,9 @@ public class DevicesProvider {
 
     private final ConcurrentHashMap<String, DeviceDto> deviceByDeviceId = new ConcurrentHashMap<>();
 
-    @SuppressWarnings("unchecked")
-    public <T extends DeviceDto> Optional<T> getDevice(DeviceType desiredDeviceType, String deviceId, Class<T> clazz) {
-        final T device = (T) getOrLoadDevice(deviceId, clazz);
+
+    public Optional<DeviceDto> getDevice(DeviceType desiredDeviceType, String deviceId) {
+        final DeviceDto device = getOrLoadDevice(deviceId);
         if (device == null) {
             return Optional.empty();
         }
@@ -48,11 +48,11 @@ public class DevicesProvider {
         deviceByDeviceId.put(device.getDeviceId().toString(), device);
     }
 
-    private <T extends DeviceDto> DeviceDto getOrLoadDevice(String deviceId, Class<T> clazz) {
-        return deviceByDeviceId.computeIfAbsent(deviceId, (k) -> loadDevice(deviceId, clazz));
+    private DeviceDto getOrLoadDevice(String deviceId) {
+        return deviceByDeviceId.computeIfAbsent(deviceId, (k) -> loadDevice(deviceId));
     }
 
-    private <T extends DeviceDto> T loadDevice(String deviceId, Class<T> clazz) {
+    private DeviceDto loadDevice(String deviceId) {
         final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + deviceId);
 
         log.info("Calling {}", builder.toUriString());
@@ -68,7 +68,7 @@ public class DevicesProvider {
             log.info("Device with id={} is not found!", deviceId);
             return null;
         }
-        final T dto = telemetryParser.parse(device, clazz);
+        final DeviceDto dto = telemetryParser.parse(device);
         deviceByDeviceId.put(deviceId, dto);
         return dto;
     }

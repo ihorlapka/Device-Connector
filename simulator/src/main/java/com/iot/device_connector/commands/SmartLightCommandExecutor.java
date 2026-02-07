@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.stereotype.Component;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import static com.iot.device_connector.model.enums.DeviceType.SMART_LIGHT;
@@ -57,16 +56,16 @@ public class SmartLightCommandExecutor extends AbstractCommandExecutor<SmartLigh
     @Override
     SmartLight mapDeviceFromDtoToAvro(SmartLightDto device) {
         return SmartLight.newBuilder()
-                .setDeviceId(device.deviceId().toString())
-                .setIsOn(device.isOn())
+                .setDeviceId(device.getDeviceId().toString())
+                .setIsOn(device.getIsOn())
                 .setBrightness(device.getBrightness())
-                .setColor(device.colour())
-                .setMode(ofNullable(device.mode())
+                .setColor(device.getColour())
+                .setMode(ofNullable(device.getMode())
                         .map(SmartLightMode::valueOf)
                         .orElse(null))
                 .setPowerConsumption(device.getPowerConsumption())
                 .setStatus(DeviceStatus.valueOf(device.getStatus().name()))
-                .setFirmwareVersion(device.firmwareVersion())
+                .setFirmwareVersion(device.getFirmwareVersion())
                 .setLastUpdated(device.getLastUpdated())
                 .build();
     }

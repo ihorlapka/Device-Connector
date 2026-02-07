@@ -48,10 +48,7 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
     public void submitCommand(C command, Function<C, String> deviceIdFunction) {
         try {
             final String deviceId = deviceIdFunction.apply(command);
-            final D device = devicesProvider.getDevice(getDeviceType(), deviceId, getClazz())
-                    .map(this::mapDeviceFromDtoToAvro)
-                    .orElseThrow(() -> new RuntimeException("No device present!"));
-
+            final D device = getDevice(deviceId);
             final BlockingQueue<CommandWithExecution> futureExecutions = futureExecutionsByDeviceId
                     .computeIfAbsent(deviceId, (k) -> new LinkedBlockingQueue<>(COMMANDS_CAPACITY));
             checkIfShouldCancelAnyRunningCommands(command, futureExecutions);
@@ -78,6 +75,13 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
         } catch (Exception e) {
             log.error("Unexpected exception occurred during command execution!");
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private D getDevice(String deviceId) {
+        return devicesProvider.getDevice(getDeviceType(), deviceId)
+                .map(deviceDto -> mapDeviceFromDtoToAvro((T) deviceDto))
+                .orElseThrow(() -> new RuntimeException("No device present!"));
     }
 
     private ExecutorService getVirtualExecutorService(String deviceId) {
