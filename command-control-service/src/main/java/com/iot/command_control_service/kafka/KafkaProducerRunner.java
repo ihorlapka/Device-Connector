@@ -42,11 +42,9 @@ public class KafkaProducerRunner {
     private Callback getCallback(SpecificRecord message) {
         return (metadata, exception) -> {
             if (exception != null) {
-                log.error("Failed to send record to topic={}, message={}, error={}",
-                        kafkaProducerProperties.getTopic(), message, exception.getMessage(), exception);
+                log.error("Failed to send record to topic={}, message={}, error={}", kafkaProducerProperties.getTopic(), message, exception.getMessage(), exception);
             } else {
-                log.info("Successfully sent record to topic={}, partition={}, offset={}",
-                        kafkaProducerProperties.getTopic(), metadata.partition(), metadata.offset());
+                log.info("Successfully sent record to topic={}, partition={}, offset={}", kafkaProducerProperties.getTopic(), metadata.partition(), metadata.offset());
             }
         };
     }
