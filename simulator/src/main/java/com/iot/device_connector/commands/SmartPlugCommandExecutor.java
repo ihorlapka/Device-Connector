@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
 import java.util.concurrent.Future;
 
 import static com.iot.device_connector.model.enums.DeviceType.SMART_PLUG;
@@ -52,24 +53,29 @@ public class SmartPlugCommandExecutor extends AbstractCommandExecutor<SmartPlugC
     @Override
     SmartPlug mapDeviceFromDtoToAvro(SmartPlugDto device) {
         return SmartPlug.newBuilder()
-                .setDeviceId(device.deviceId().toString())
-                .setIsOn(device.isOn())
+                .setDeviceId(device.getDeviceId().toString())
+                .setIsOn(device.getIsOn())
                 .setVoltage(device.getVoltage())
                 .setCurrent(device.getCurrent())
                 .setPowerUsage(device.getPowerUsage())
                 .setStatus(DeviceStatus.valueOf(device.getStatus().name()))
-                .setFirmwareVersion(device.firmwareVersion())
+                .setFirmwareVersion(device.getFirmwareVersion())
                 .setLastUpdated(device.getLastUpdated())
                 .build();
     }
 
     @Override
     SmartPlugDto mapDeviceFromAvroToDto(SmartPlug device) {
-        return null;
-    }
-
-    @Override
-    Class<SmartPlugDto> getClazz() {
-        return SmartPlugDto.class;
+        return SmartPlugDto.builder()
+                .deviceId(UUID.fromString(device.getDeviceId()))
+                .deviceType(SMART_PLUG)
+                .isOn(device.getIsOn())
+                .voltage(device.getVoltage())
+                .current(device.getCurrent())
+                .powerUsage(device.getPowerUsage())
+                .status(com.iot.device_connector.model.enums.DeviceStatus.valueOf(device.getStatus().name()))
+                .firmwareVersion(device.getFirmwareVersion())
+                .lastUpdated(device.getLastUpdated())
+                .build();
     }
 }

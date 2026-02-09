@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
 import java.util.concurrent.Future;
 
 import static com.iot.device_connector.model.enums.DeviceType.SMART_LIGHT;
@@ -72,12 +73,20 @@ public class SmartLightCommandExecutor extends AbstractCommandExecutor<SmartLigh
 
     @Override
     SmartLightDto mapDeviceFromAvroToDto(SmartLight device) {
-        return null;
-    }
-
-    @Override
-    Class<SmartLightDto> getClazz() {
-        return SmartLightDto.class;
+        return SmartLightDto.builder()
+                .deviceId(UUID.fromString(device.getDeviceId()))
+                .deviceType(SMART_LIGHT)
+                .isOn(device.getIsOn())
+                .brightness(device.getBrightness())
+                .colour(device.getColor())
+                .mode(ofNullable(device.getMode())
+                        .map(SmartLightMode::name)
+                        .orElse(null))
+                .powerConsumption(device.getPowerConsumption())
+                .status(com.iot.device_connector.model.enums.DeviceStatus.valueOf(device.getStatus().name()))
+                .firmwareVersion(device.getFirmwareVersion())
+                .lastUpdated(device.getLastUpdated())
+                .build();
     }
 }
 

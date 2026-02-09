@@ -2,16 +2,17 @@ package com.iot.device_connector.devices.dto;
 
 import com.iot.device_connector.model.enums.DeviceStatus;
 import com.iot.device_connector.model.enums.DeviceType;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
 
 @Getter
 @Setter
+@ToString
+@Builder(toBuilder = true)
 @RequiredArgsConstructor(staticName = "of")
+@AllArgsConstructor
 public class SmartPlugDto implements DeviceDto {
     private final UUID deviceId;
     private final DeviceStatus status;

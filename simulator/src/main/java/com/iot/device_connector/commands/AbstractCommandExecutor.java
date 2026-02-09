@@ -35,7 +35,6 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
     abstract DeviceType getDeviceType();
     abstract D mapDeviceFromDtoToAvro(T device);
     abstract T mapDeviceFromAvroToDto(D device);
-    abstract Class<T> getClazz();
 
     Future<RecordMetadata> sendMessage(String deviceId, D device) {
         return kafkaProducerRunner.sendMessage(deviceId, device);
@@ -48,16 +47,15 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
     public void submitCommand(C command, Function<C, String> deviceIdFunction) {
         try {
             final String deviceId = deviceIdFunction.apply(command);
-            final D device = getDevice(deviceId);
             final BlockingQueue<CommandWithExecution> futureExecutions = futureExecutionsByDeviceId
                     .computeIfAbsent(deviceId, (k) -> new LinkedBlockingQueue<>(COMMANDS_CAPACITY));
             checkIfShouldCancelAnyRunningCommands(command, futureExecutions);
 
-            final CommandWithExecution commandWithExecution = CommandWithExecution.of(command);
+            final CommandWithExecution commandWithExecution = new CommandWithExecution(command);
             if (futureExecutions.offer(commandWithExecution)) {
                 try {
                     final Future<D> futureExecution = executorsCache.get(deviceId, () -> getVirtualExecutorService(deviceId))
-                            .submit(executeWithRemoval(command, device, futureExecutions));
+                            .submit(executeWithRemoval(command, deviceId, futureExecutions));
                     commandWithExecution.setFutureExecution(futureExecution);
                     log.info("Submitted new command for execution: {}", command);
                 } catch (ExecutionException e) {
@@ -75,13 +73,6 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
         } catch (Exception e) {
             log.error("Unexpected exception occurred during command execution!");
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private D getDevice(String deviceId) {
-        return devicesProvider.getDevice(getDeviceType(), deviceId)
-                .map(deviceDto -> mapDeviceFromDtoToAvro((T) deviceDto))
-                .orElseThrow(() -> new RuntimeException("No device present!"));
     }
 
     private ExecutorService getVirtualExecutorService(String deviceId) {
@@ -103,14 +94,22 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
         }
     }
 
-    private Callable<D> executeWithRemoval(C command, D device, BlockingQueue<CommandWithExecution> futureExecutions) {
+    private Callable<D> executeWithRemoval(C command, String deviceId, BlockingQueue<CommandWithExecution> futureExecutions) {
         return () -> {
             try {
+                final D device = getDevice(deviceId);
                 return applyCommand(command, device);
             } finally {
                 futureExecutions.removeIf(c -> c.getCommand().equals(command));
             }
         };
+    }
+
+    @SuppressWarnings("unchecked")
+    private D getDevice(String deviceId) {
+        return devicesProvider.getDevice(getDeviceType(), deviceId)
+                .map(deviceDto -> mapDeviceFromDtoToAvro((T) deviceDto))
+                .orElseThrow(() -> new RuntimeException("No device present!"));
     }
 
     private Cache<String, ExecutorService> buildExecutorsByDeviceIdCache() {
@@ -137,7 +136,7 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
     @Getter
     @ToString
     @EqualsAndHashCode(of = "command")
-    @RequiredArgsConstructor(staticName = "of")
+    @RequiredArgsConstructor
     class CommandWithExecution {
         @NonNull
         private final C command;

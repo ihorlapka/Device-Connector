@@ -19,6 +19,12 @@ import static java.time.Instant.now;
 @RequiredArgsConstructor
 public class SmartLightCreator {
 
+    public static final boolean SMART_LIGHT_IS_ON_DEFAULT = true;
+    public static final int SMART_LIGHT_BRIGHTNESS_DEFAULT = 2;
+    public static final String SMART_LIGHT_COLOUR_DEFAULT = "Yellow";
+    public static final SmartLightMode SMART_LIGHT_MODE_DEFAULT = AMBIENT;
+    public static final float SMART_LIGHT_POWER_CONSUMPTION_DEFAULT = 8f;
+
     private final Random random = new Random();
     private final ConcurrentHashMap<String, SmartLight> telemetriesById = new ConcurrentHashMap<>();
 
@@ -26,11 +32,11 @@ public class SmartLightCreator {
         if (!telemetriesById.containsKey(device.id().toString())) {
             final SmartLight smartLight = SmartLight.newBuilder()
                     .setDeviceId(device.id().toString())
-                    .setIsOn(true)
-                    .setBrightness(2)
-                    .setColor("Yellow")
-                    .setMode(AMBIENT)
-                    .setPowerConsumption(8f)
+                    .setIsOn(SMART_LIGHT_IS_ON_DEFAULT)
+                    .setBrightness(SMART_LIGHT_BRIGHTNESS_DEFAULT)
+                    .setColor(SMART_LIGHT_COLOUR_DEFAULT)
+                    .setMode(SMART_LIGHT_MODE_DEFAULT)
+                    .setPowerConsumption(SMART_LIGHT_POWER_CONSUMPTION_DEFAULT)
                     .setStatus(ONLINE)
                     .setFirmwareVersion("10.2.0")
                     .setLastUpdated(now())

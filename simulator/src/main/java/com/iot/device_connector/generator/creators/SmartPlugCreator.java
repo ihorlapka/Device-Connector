@@ -17,6 +17,11 @@ import static java.time.Instant.now;
 @RequiredArgsConstructor
 public class SmartPlugCreator {
 
+    public static final boolean SMART_PLUG_IS_ON_DEFAULT = true;
+    public static final float SMART_PLUG_VOLTAGE_DEFAULT = 220f;
+    public static final float SMART_PLUG_CURRENT_DEFAULT = 8f;
+    public static final float SMART_PLUG_POWER_USAGE_DEFAULT = 1760f;
+
     private final Random random = new Random();
     private final ConcurrentHashMap<String, SmartPlug> telemetriesById = new ConcurrentHashMap<>();
 
@@ -24,10 +29,10 @@ public class SmartPlugCreator {
         if (!telemetriesById.containsKey(device.id().toString())) {
             final SmartPlug smartPlug = SmartPlug.newBuilder()
                     .setDeviceId(device.id().toString())
-                    .setIsOn(true)
-                    .setVoltage(220f)
-                    .setCurrent(8f)
-                    .setPowerUsage(1760f)
+                    .setIsOn(SMART_PLUG_IS_ON_DEFAULT)
+                    .setVoltage(SMART_PLUG_VOLTAGE_DEFAULT)
+                    .setCurrent(SMART_PLUG_CURRENT_DEFAULT)
+                    .setPowerUsage(SMART_PLUG_POWER_USAGE_DEFAULT)
                     .setStatus(ONLINE)
                     .setFirmwareVersion("5.4.0")
                     .setLastUpdated(now())

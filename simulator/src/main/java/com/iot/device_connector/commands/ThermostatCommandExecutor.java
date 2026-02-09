@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -86,26 +87,33 @@ public class ThermostatCommandExecutor extends AbstractCommandExecutor<Thermosta
     @Override
     Thermostat mapDeviceFromDtoToAvro(ThermostatDto device) {
         return Thermostat.newBuilder()
-                .setDeviceId(device.deviceId().toString())
+                .setDeviceId(device.getDeviceId().toString())
                 .setCurrentTemperature(device.getCurrentTemperature())
                 .setTargetTemperature(device.getTargetTemperature())
                 .setHumidity(device.getHumidity())
-                .setMode(ofNullable(device.mode())
+                .setMode(ofNullable(device.getMode())
                         .map(mode -> ThermostatMode.valueOf(mode.name()))
                         .orElse(null))
                 .setStatus(DeviceStatus.valueOf(device.getStatus().name()))
-                .setFirmwareVersion(device.firmwareVersion())
+                .setFirmwareVersion(device.getFirmwareVersion())
                 .setLastUpdated(device.getLastUpdated())
                 .build();
     }
 
     @Override
     ThermostatDto mapDeviceFromAvroToDto(Thermostat device) {
-        return null;
-    }
-
-    @Override
-    Class<ThermostatDto> getClazz() {
-        return ThermostatDto.class;
+        return ThermostatDto.builder()
+                .deviceId(UUID.fromString(device.getDeviceId()))
+                .deviceType(THERMOSTAT)
+                .currentTemperature(device.getCurrentTemperature())
+                .targetTemperature(device.getTargetTemperature())
+                .humidity(device.getHumidity())
+                .mode(ofNullable(device.getMode())
+                        .map(mode -> com.iot.device_connector.devices.ThermostatMode.valueOf(mode.name()))
+                        .orElse(null))
+                .status(com.iot.device_connector.model.enums.DeviceStatus.valueOf(device.getStatus().name()))
+                .firmwareVersion(device.getFirmwareVersion())
+                .lastUpdated(device.getLastUpdated())
+                .build();
     }
 }

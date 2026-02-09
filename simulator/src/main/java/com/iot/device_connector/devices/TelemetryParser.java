@@ -15,7 +15,9 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import static java.util.Optional.empty;
+import static com.iot.device_connector.generator.creators.SmartLightCreator.*;
+import static com.iot.device_connector.generator.creators.SmartPlugCreator.*;
+import static com.iot.device_connector.generator.creators.ThermostatCreator.*;
 import static java.util.Optional.ofNullable;
 
 @Slf4j
@@ -68,28 +70,28 @@ public class TelemetryParser {
     }
 
     private void parseAndSetSmartPlugTelemetry(JsonNode jsonNode, SmartPlugDto dto) {
-        parseField(jsonNode, "isOn", JsonNode::asBoolean).ifPresent(dto::setIsOn);
-        parseField(jsonNode, "voltage", JsonNode::floatValue).ifPresent(dto::setVoltage);
-        parseField(jsonNode, "current", JsonNode::floatValue).ifPresent(dto::setCurrent);
-        parseField(jsonNode, "powerUsage", JsonNode::floatValue).ifPresent(dto::setPowerUsage);
+        parseField(jsonNode, "isOn", JsonNode::asBoolean, SMART_PLUG_IS_ON_DEFAULT).ifPresent(dto::setIsOn);
+        parseField(jsonNode, "voltage", JsonNode::floatValue, SMART_PLUG_VOLTAGE_DEFAULT).ifPresent(dto::setVoltage);
+        parseField(jsonNode, "current", JsonNode::floatValue, SMART_PLUG_CURRENT_DEFAULT).ifPresent(dto::setCurrent);
+        parseField(jsonNode, "powerUsage", JsonNode::floatValue, SMART_PLUG_POWER_USAGE_DEFAULT).ifPresent(dto::setPowerUsage);
     }
 
     private void parseAndSetSmartLightTelemetry(JsonNode jsonNode, SmartLightDto dto) {
-        parseField(jsonNode, "isOn", JsonNode::asBoolean).ifPresent(dto::setIsOn);
-        parseField(jsonNode, "brightness", JsonNode::intValue).ifPresent(dto::setBrightness);
-        parseField(jsonNode, "colour", JsonNode::textValue).ifPresent(dto::setColour);
-        parseField(jsonNode, "mode", JsonNode::textValue).ifPresent(dto::setMode);
-        parseField(jsonNode, "powerConsumption", JsonNode::floatValue).ifPresent(dto::setPowerConsumption);
+        parseField(jsonNode, "isOn", JsonNode::asBoolean, SMART_LIGHT_IS_ON_DEFAULT).ifPresent(dto::setIsOn);
+        parseField(jsonNode, "brightness", JsonNode::intValue, SMART_LIGHT_BRIGHTNESS_DEFAULT).ifPresent(dto::setBrightness);
+        parseField(jsonNode, "colour", JsonNode::textValue, SMART_LIGHT_COLOUR_DEFAULT).ifPresent(dto::setColour);
+        parseField(jsonNode, "mode", JsonNode::textValue, SMART_LIGHT_MODE_DEFAULT.name()).ifPresent(dto::setMode);
+        parseField(jsonNode, "powerConsumption", JsonNode::floatValue, SMART_LIGHT_POWER_CONSUMPTION_DEFAULT).ifPresent(dto::setPowerConsumption);
     }
 
     private void parseAndSetThermostatTelemetry(JsonNode jsonNode, ThermostatDto dto) {
-        parseField(jsonNode, "currentTemperature", JsonNode::floatValue).ifPresent(dto::setCurrentTemperature);
-        parseField(jsonNode, "targetTemperature", JsonNode::floatValue).ifPresent(dto::setTargetTemperature);
-        parseField(jsonNode, "humidity", JsonNode::floatValue).ifPresent(dto::setHumidity);
-        parseField(jsonNode, "mode", JsonNode::textValue).ifPresent(mode -> dto.setMode(ThermostatMode.valueOf(mode)));
+        parseField(jsonNode, "currentTemperature", JsonNode::floatValue, THERMOSTAT_CURRENT_TEMPERATURE_DEFAULT).ifPresent(dto::setCurrentTemperature);
+        parseField(jsonNode, "targetTemperature", JsonNode::floatValue, THERMOSTAT_TARGET_TEMPERATURE_DEFAULT).ifPresent(dto::setTargetTemperature);
+        parseField(jsonNode, "humidity", JsonNode::floatValue, THERMOSTAT_HUMIDITY_DEFAULT).ifPresent(dto::setHumidity);
+        parseField(jsonNode, "mode", JsonNode::textValue, THERMOSTAT_DEFAULT_MODE.name()).ifPresent(mode -> dto.setMode(ThermostatMode.valueOf(mode)));
     }
 
-    private <T> Optional<T> parseField(JsonNode jsonNode, String fieldName, Function<JsonNode, T> parseValue) {
-        return jsonNode.hasNonNull(fieldName) ? ofNullable(parseValue.apply(jsonNode.get(fieldName))) : empty();
+    private <T> Optional<T> parseField(JsonNode jsonNode, String fieldName, Function<JsonNode, T> parseValue, T defaultValue) {
+        return jsonNode.hasNonNull(fieldName) ? ofNullable(parseValue.apply(jsonNode.get(fieldName))) : ofNullable(defaultValue);
     }
 }

@@ -20,6 +20,11 @@ import static java.time.Instant.now;
 @RequiredArgsConstructor
 public class ThermostatCreator {
 
+    public static final float THERMOSTAT_CURRENT_TEMPERATURE_DEFAULT = 22f;
+    public static final float THERMOSTAT_TARGET_TEMPERATURE_DEFAULT = 25f;
+    public static final float THERMOSTAT_HUMIDITY_DEFAULT = 45f;
+    public static final ThermostatMode THERMOSTAT_DEFAULT_MODE = HEAT;
+
     private final Random random = new Random();
     private final ConcurrentHashMap<String, Thermostat> telemetriesById = new ConcurrentHashMap<>();
 
@@ -27,10 +32,10 @@ public class ThermostatCreator {
         if (!telemetriesById.containsKey(device.id().toString())) {
             final Thermostat thermostat = Thermostat.newBuilder()
                     .setDeviceId(device.id().toString())
-                    .setCurrentTemperature(22f)
-                    .setTargetTemperature(25f)
-                    .setHumidity(45f)
-                    .setMode(HEAT)
+                    .setCurrentTemperature(THERMOSTAT_CURRENT_TEMPERATURE_DEFAULT)
+                    .setTargetTemperature(THERMOSTAT_TARGET_TEMPERATURE_DEFAULT)
+                    .setHumidity(THERMOSTAT_HUMIDITY_DEFAULT)
+                    .setMode(THERMOSTAT_DEFAULT_MODE)
                     .setStatus(ONLINE)
                     .setFirmwareVersion("2.1")
                     .setLastUpdated(now())

@@ -7,6 +7,7 @@ import com.iot.command_control_service.services.RegistryServiceClient;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.avro.specific.SpecificRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,10 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
-import java.util.UUID;
 import java.util.concurrent.Future;
-import com.iot.devices.Command;
+
+import static com.iot.command_control_service.controller.DtoMapper.mapToDto;
 
 @Slf4j
 @RestController
@@ -27,13 +27,14 @@ public class CommandsController {
 
     private final RegistryServiceClient registryClient;
     private final KafkaProducerRunner kafkaProducer;
+    private final CommandResolver commandResolver;
 
     @PostMapping
     public ResponseEntity<?> sendCommand(@RequestBody CommandRequest commandRequest, HttpServletRequest httpServletRequest) {
         log.info("Received: {}", commandRequest);
         if (registryClient.checkAccess(commandRequest, httpServletRequest)) {
             try {
-                final Command command = mapToAvro(commandRequest);
+                final SpecificRecord command = commandResolver.resolve(commandRequest);
                 final Future<RecordMetadata> future = kafkaProducer.send(commandRequest.deviceId(), command);
                 final RecordMetadata metadata = future.get();
                 log.info("Command {} is successfully sent, offset={}", command, metadata.offset());
@@ -44,15 +45,5 @@ public class CommandsController {
         } else {
             throw new PermissionDeniedException(commandRequest.userId());
         }
-    }
-
-    private Command mapToAvro(CommandRequest request) {
-        return new Command(UUID.randomUUID().toString(), request.deviceId().toString(),
-                request.userId().toString(), request.payload(), Instant.now());
-    }
-
-    private static CommandDto mapToDto(Command command) {
-        return new CommandDto(command.getCommandId(), command.getDeviceId(),
-                command.getUserId(), command.getPayload(), command.getCreatedAt());
     }
 }
