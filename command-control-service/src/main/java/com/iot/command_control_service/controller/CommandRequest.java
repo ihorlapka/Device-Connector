@@ -1,8 +1,6 @@
 package com.iot.command_control_service.controller;
 
-import com.iot.commands.DeviceType;
 import lombok.NonNull;
-
 import java.util.UUID;
 
 public record CommandRequest(
