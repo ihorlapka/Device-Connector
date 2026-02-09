@@ -40,6 +40,7 @@ public class CommandsController {
                 log.info("Command {} is successfully sent, offset={}", command, metadata.offset());
                 return ResponseEntity.ok().body(mapToDto(command));
             } catch (Exception e) {
+                log.error("Unexpected exception occurred during command processing", e);
                 throw new CommandNotSentException(commandRequest.deviceId(), commandRequest.userId(), e);
             }
         } else {
