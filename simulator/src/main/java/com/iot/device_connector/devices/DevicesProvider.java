@@ -25,6 +25,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 public class DevicesProvider {
 
+    private static final String DEVICES_URL = "/iot-registry/api/v1/devices/";
+
     private final RestTemplate restTemplate;
     private final RegistryAuthenticator authenticator;
     private final TelemetryParser telemetryParser;
@@ -53,7 +55,7 @@ public class DevicesProvider {
     }
 
     private DeviceDto loadDevice(String deviceId) {
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + deviceId);
+        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + DEVICES_URL + deviceId);
 
         log.info("Calling {}", builder.toUriString());
         final ResponseEntity<Device> response = restTemplate.exchange(
