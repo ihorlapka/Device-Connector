@@ -27,7 +27,7 @@ public class RegistryAuthenticator {
 
     private final RestTemplate restTemplate;
 
-    private AtomicReference<AuthenticationResponse> authentication;
+    private final AtomicReference<AuthenticationResponse> authentication = new AtomicReference<>();
 
     public AuthenticationResponse login() {
         if (authentication.get() != null) {
