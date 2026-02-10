@@ -97,6 +97,7 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
     private Callable<D> executeWithRemoval(C command, String deviceId, BlockingQueue<CommandWithExecution> futureExecutions) {
         return () -> {
             try {
+                log.info("Starting to apply command!");
                 final D device = getDevice(deviceId);
                 return applyCommand(command, device);
             } finally {
