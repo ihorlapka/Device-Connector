@@ -26,7 +26,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         final ErrorResponse response = ErrorResponse.of(
                 NOT_FOUND,
                 ex.getMessage(),
-                "Unable to send command!",
+                ex.getCause().getMessage(),
                 URI.create(request.getDescription(false)),
                 emptyMap());
         return new ResponseEntity<>(response, NOT_FOUND);
