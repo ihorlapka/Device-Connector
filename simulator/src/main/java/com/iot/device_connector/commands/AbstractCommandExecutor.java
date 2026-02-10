@@ -97,11 +97,20 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
     private Callable<D> executeWithRemoval(C command, String deviceId, BlockingQueue<CommandWithExecution> futureExecutions) {
         return () -> {
             try {
-                log.info("Starting to apply command!");
                 final D device = getDevice(deviceId);
                 return applyCommand(command, device);
+            } catch (Exception e) {
+                log.error("Failed to execute command: {}", command, e);
+                throw e;
             } finally {
-                futureExecutions.removeIf(c -> c.getCommand().equals(command));
+                futureExecutions.removeIf(c -> {
+                    boolean shouldRemove = c.getCommand().equals(command);
+                    if (shouldRemove) {
+                        log.info("Removing command task {}", c);
+                        return true;
+                    }
+                    return false;
+                });
             }
         };
     }
