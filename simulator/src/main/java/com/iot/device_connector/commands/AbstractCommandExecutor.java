@@ -15,6 +15,7 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 @Slf4j
@@ -28,6 +29,7 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
 
     private final ConcurrentHashMap<String, BlockingQueue<CommandWithExecution>> futureExecutionsByDeviceId = new ConcurrentHashMap<>();
     private final Cache<String, ExecutorService> executorsCache = buildExecutorsByDeviceIdCache();
+    private final AtomicLong virtualThreadsCount = new AtomicLong();
 
 
     abstract D applyCommand(C command, D device);
@@ -54,7 +56,7 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
             final CommandWithExecution commandWithExecution = new CommandWithExecution(command);
             if (futureExecutions.offer(commandWithExecution)) {
                 try {
-                    final Future<D> futureExecution = executorsCache.get(deviceId, () -> getVirtualExecutorService(deviceId))
+                    final Future<D> futureExecution = executorsCache.get(deviceId, this::getVirtualExecutorService)
                             .submit(executeWithRemoval(command, deviceId, futureExecutions));
                     commandWithExecution.setFutureExecution(futureExecution);
                     log.info("Submitted new command for execution: {}", command);
@@ -75,8 +77,8 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
         }
     }
 
-    private ExecutorService getVirtualExecutorService(String deviceId) {
-        return Executors.newSingleThreadExecutor(Thread.ofVirtual().name("device-" + deviceId).factory());
+    private ExecutorService getVirtualExecutorService() {
+        return Executors.newSingleThreadExecutor(Thread.ofVirtual().name("virtual-" + virtualThreadsCount.getAndIncrement()).factory());
     }
 
     private void checkIfShouldCancelAnyRunningCommands(C newCommand, BlockingQueue<CommandWithExecution> futureExecutions) {
@@ -134,6 +136,7 @@ public abstract class AbstractCommandExecutor<C extends SpecificRecord, D extend
                             if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
                                 executor.shutdownNow();
                             }
+                            virtualThreadsCount.decrementAndGet();
                         } catch (InterruptedException e) {
                             executor.shutdownNow();
                             Thread.currentThread().interrupt();
