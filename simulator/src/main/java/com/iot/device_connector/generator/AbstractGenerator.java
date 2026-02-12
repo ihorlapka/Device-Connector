@@ -86,8 +86,8 @@ public abstract class AbstractGenerator {
         };
     }
 
-    AuthenticationResponse login() {
-        return authenticator.login();
+    AuthenticationResponse getAuthentication() {
+        return authenticator.getAuthentication();
     }
 
     void logout(AuthenticationResponse authResponse) {

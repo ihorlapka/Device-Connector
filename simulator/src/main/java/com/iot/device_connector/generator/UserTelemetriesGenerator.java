@@ -45,7 +45,7 @@ public class UserTelemetriesGenerator extends AbstractGenerator {
     }
 
     private void generate(String username, List<UUID> desiredDeviceIds) {
-        final AuthenticationResponse authResponse = login();
+        final AuthenticationResponse authResponse = getAuthentication();
         final List<Device> devices = loadDevices(authResponse, username,
                 new ParameterizedTypeReference<User>() {}, getDevicesFromOneUserFunction());
         logout(authResponse);

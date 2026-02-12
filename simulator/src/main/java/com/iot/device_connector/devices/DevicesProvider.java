@@ -1,5 +1,6 @@
 package com.iot.device_connector.devices;
 
+import com.iot.device_connector.auth.AuthenticationResponse;
 import com.iot.device_connector.auth.RegistryAuthenticator;
 import com.iot.device_connector.devices.dto.DeviceDto;
 import com.iot.device_connector.model.Device;
@@ -56,12 +57,13 @@ public class DevicesProvider {
 
     private DeviceDto loadDevice(String deviceId) {
         final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + DEVICES_URL + deviceId);
+        final AuthenticationResponse authResponse = authenticator.getAuthentication();
 
         log.info("Calling {}", builder.toUriString());
         final ResponseEntity<Device> response = restTemplate.exchange(
                 builder.toUriString(),
                 HttpMethod.GET,
-                buildHttpEntity(builder),
+                buildHttpEntity(builder, authResponse),
                 Device.class
         );
         final Device device = response.getBody();
@@ -75,9 +77,9 @@ public class DevicesProvider {
         return dto;
     }
 
-    private HttpEntity<?> buildHttpEntity(UriComponentsBuilder builder) {
+    private HttpEntity<?> buildHttpEntity(UriComponentsBuilder builder, AuthenticationResponse authResponse) {
         final MultiValueMap<String, String> headers = new HttpHeaders();
-        headers.add(AUTHORIZATION, TOKEN_PREFIX + authenticator.login().getAccessToken());
+        headers.add(AUTHORIZATION, TOKEN_PREFIX + authResponse.getAccessToken());
         return new RequestEntity<>(headers, HttpMethod.GET, builder.build(Map.of()));
     }
 }

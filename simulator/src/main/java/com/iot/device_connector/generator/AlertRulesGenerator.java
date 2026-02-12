@@ -24,7 +24,7 @@ public class AlertRulesGenerator extends AbstractGenerator {
     }
 
     public void generate() {
-        final AuthenticationResponse authResponse = login();
+        final AuthenticationResponse authResponse = getAuthentication();
         final List<Device> devices = loadDevices(authResponse, "",
                 new ParameterizedTypeReference<List<User>>() {}, getDevicesFromManyUsersFunction());
         logout(authResponse);

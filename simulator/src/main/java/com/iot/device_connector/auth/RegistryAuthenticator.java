@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.iot.device_connector.generator.AbstractGenerator.REGISTRY_BASE_URL;
 import static com.iot.device_connector.generator.AbstractGenerator.TOKEN_PREFIX;
+import static java.util.Objects.requireNonNull;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @Slf4j
@@ -29,13 +30,28 @@ public class RegistryAuthenticator {
 
     private final AtomicReference<AuthenticationResponse> authentication = new AtomicReference<>();
 
-    public AuthenticationResponse login() {
-        if (authentication.get() != null) {
-            return authentication.get();
+    public AuthenticationResponse getAuthentication() {
+        AuthenticationResponse existingAuth = authentication.get();
+        if (existingAuth != null) {
+            return existingAuth;
         }
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + LOGIN_URL);
+        synchronized (this) {
+            existingAuth = authentication.get();
+            if (existingAuth == null) {
+                AuthenticationResponse newAuth = login();
+                authentication.set(newAuth);
+                return newAuth;
+            }
+            return existingAuth;
+        }
+    }
+
+    private AuthenticationResponse login() {
+        final String uri = UriComponentsBuilder.fromUriString(REGISTRY_BASE_URL + LOGIN_URL).toUriString();
+        log.info("Calling {}", uri);
         final AuthenticationRequest request = new AuthenticationRequest(USERNAME, PASSWORD);
-        ResponseEntity<AuthenticationResponse> authResponse = restTemplate.postForEntity(builder.toUriString(), request, AuthenticationResponse.class, Map.of());
+        ResponseEntity<AuthenticationResponse> authResponse = restTemplate.postForEntity(uri, request, AuthenticationResponse.class, Map.of());
+        requireNonNull(authResponse.getBody(), "Authentication response is null");
         log.info("Simulator app is logged in!");
         authentication.set(authResponse.getBody());
         return authResponse.getBody();
@@ -51,6 +67,6 @@ public class RegistryAuthenticator {
     private HttpEntity<?> buildHttpEntity(AuthenticationResponse authResponse, UriComponentsBuilder builder) {
         final MultiValueMap<String, String> headers = new HttpHeaders();
         headers.add(AUTHORIZATION, TOKEN_PREFIX + authResponse.getAccessToken());
-        return new RequestEntity<>(headers, HttpMethod.GET, builder.build(Map.of()));
+        return new RequestEntity<>(headers, HttpMethod.POST, builder.build(Map.of()));
     }
 }
