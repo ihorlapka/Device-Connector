@@ -72,9 +72,7 @@ public class DevicesProvider {
             log.info("Device with id={} is not found!", deviceId);
             return null;
         }
-        final DeviceDto dto = telemetryParser.parse(device);
-        deviceByDeviceId.put(deviceId, dto);
-        return dto;
+        return telemetryParser.parse(device);
     }
 
     private HttpEntity<?> buildHttpEntity(UriComponentsBuilder builder, AuthenticationResponse authResponse) {
