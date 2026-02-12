@@ -92,6 +92,6 @@ public class CommandResolver {
     }
 
     private void parseAndSetThermostatTelemetry(JsonNode jsonNode, ThermostatCommand.Builder builder) {
-        parseField(jsonNode, "currentTemperature", JsonNode::floatValue).ifPresent(builder::setTargetTemperature);
+        parseField(jsonNode, "targetTemperature", JsonNode::floatValue).ifPresent(builder::setTargetTemperature);
     }
 }
