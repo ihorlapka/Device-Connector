@@ -7,6 +7,7 @@ import com.iot.device_connector.devices.dto.SmartLightDto;
 import com.iot.device_connector.devices.dto.SmartPlugDto;
 import com.iot.device_connector.devices.dto.ThermostatDto;
 import com.iot.device_connector.model.Device;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,7 @@ import static java.util.Optional.ofNullable;
 @RequiredArgsConstructor
 public class TelemetryParser {
 
+    private static final String EMPTY_TELEMETRY = "{}";
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -55,9 +57,9 @@ public class TelemetryParser {
         return parse(device.telemetry(), deviceDto, this::parseAndSetThermostatTelemetry);
     }
 
-    private <T extends DeviceDto> T parse(String telemetry, T dto, BiConsumer<JsonNode, T> parseTelemetry) {
+    private <T extends DeviceDto> T parse(@Nullable String telemetry, T dto, BiConsumer<JsonNode, T> parseTelemetry) {
         try {
-            final JsonNode jsonNode = objectMapper.readTree(telemetry);
+            final JsonNode jsonNode = objectMapper.readTree(ofNullable(telemetry).orElse(EMPTY_TELEMETRY));
             if (jsonNode == null) {
                 return dto;
             }
