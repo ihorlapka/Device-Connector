@@ -21,6 +21,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static com.iot.device_connector.model.enums.DeviceType.THERMOSTAT;
+import static com.iot.devices.ThermostatMode.COOL;
+import static com.iot.devices.ThermostatMode.HEAT;
 import static java.lang.Thread.sleep;
 import static java.util.Optional.ofNullable;
 
@@ -48,13 +50,15 @@ public class ThermostatCommandExecutor extends AbstractCommandExecutor<Thermosta
                 if (Thread.currentThread().isInterrupted()) {
                     throw new InterruptedException("Command cancelled");
                 }
+                final boolean isHeat = target.compareTo(current) > 0;
+                current = isHeat ? current.add(STEP) : current.subtract(STEP);
                 device.setCurrentTemperature(current.floatValue());
+                device.setMode(isHeat ? HEAT : COOL);
                 Future<RecordMetadata> future = sendMessage(device.getDeviceId(), device);
                 RecordMetadata metadata = future.get(1, TimeUnit.SECONDS);
                 updateDevicesCache(device);
                 log.info("Sent during command execution: {}, offset={}", device, metadata.offset());
                 sleep(Duration.ofSeconds(TIME_PERIOD));
-                current = target.compareTo(current) > 0 ? current.add(STEP) : current.subtract(STEP);
             } catch (InterruptedException e) {
                 try {
                     log.info("New command cancelled current executing one {}, device state: {}", command, device);
