@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Future;
@@ -40,7 +41,6 @@ public class ThermostatCommandExecutor extends AbstractCommandExecutor<Thermosta
     @Override
     Thermostat applyCommand(ThermostatCommand command, Thermostat device) {
         ofNullable(command.getTargetTemperature()).ifPresent(device::setTargetTemperature);
-        ofNullable(command.getCreatedAt()).ifPresent(device::setLastUpdated);
 
         final BigDecimal target = BigDecimal.valueOf(device.getTargetTemperature()).setScale(1, RoundingMode.HALF_UP);
         BigDecimal current = BigDecimal.valueOf(device.getCurrentTemperature()).setScale(1, RoundingMode.HALF_UP);
@@ -54,6 +54,7 @@ public class ThermostatCommandExecutor extends AbstractCommandExecutor<Thermosta
                 current = isHeat ? current.add(STEP) : current.subtract(STEP);
                 device.setCurrentTemperature(current.floatValue());
                 device.setMode(isHeat ? HEAT : COOL);
+                device.setLastUpdated(Instant.now());
                 Future<RecordMetadata> future = sendMessage(device.getDeviceId(), device);
                 RecordMetadata metadata = future.get(1, TimeUnit.SECONDS);
                 updateDevicesCache(device);
