@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static com.iot.command_control_service.controller.DtoMapper.mapToDto;
 
@@ -36,7 +37,7 @@ public class CommandsController {
             try {
                 final SpecificRecord command = commandResolver.resolve(commandRequest);
                 final Future<RecordMetadata> future = kafkaProducer.send(commandRequest.deviceId(), command);
-                final RecordMetadata metadata = future.get();
+                final RecordMetadata metadata = future.get(2, TimeUnit.SECONDS);
                 log.info("Command {} is successfully sent, offset={}", command, metadata.offset());
                 return ResponseEntity.ok().body(mapToDto(command));
             } catch (Exception e) {

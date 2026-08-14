@@ -16,7 +16,7 @@
 	<description>Service for receiving data from IoT devices</description>
 
 	<properties>
-		<java.version>21</java.version>
+		<java.version>25</java.version>
 	</properties>
 
 	<distributionManagement>

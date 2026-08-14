@@ -1,4 +1,4 @@
-FROM maven:3.9.6-eclipse-temurin-21  AS build
+FROM maven:3.9.16-eclipse-temurin-25  AS build
 WORKDIR /app
 ARG GITHUB_ACTOR
 ARG GITHUB_TOKEN
@@ -9,7 +9,7 @@ COPY simulator/src ./src
 COPY /ci/settings.xml /root/.m2/settings.xml
 RUN mvn -B -s /root/.m2/settings.xml -U -DskipTests package
 RUN mv target/*.jar target/app.jar
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:25-jre
 WORKDIR /app
 COPY --from=build /app/target/app.jar .
 ENTRYPOINT ["java", "-jar", "app.jar"]
